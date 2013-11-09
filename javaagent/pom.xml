@@ -51,15 +51,15 @@
         </dependency>
     </dependencies>
     <build>
-        <!--<resources>-->
-            <!--<resource>-->
-                <!--<directory>${basedir}/appdata</directory>-->
-                <!--<filtering>false</filtering>-->
-                <!--<includes>-->
-                    <!--&lt;!&ndash;<include>logback.xml</include>&ndash;&gt;-->
-                <!--</includes>-->
-            <!--</resource>-->
-        <!--</resources>-->
+        <resources>
+            <resource>
+                <directory>${basedir}/appdata</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>logback.xml</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
