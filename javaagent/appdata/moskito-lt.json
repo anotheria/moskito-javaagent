@@ -1,0 +1,18 @@
+{
+    "@monitoringClassConfig": [
+        {
+            "patterns": ["org.primefaces.*", "org.apache.commons.fileupload.FileItem", "de.ayn.api.*"],
+            "producerId": "Primefaces",
+            "subsystem": "default",
+            "category": "web"
+        },
+        {
+            "patterns": ["org.apache.*"],
+            "producerId": "Apache",
+            "subsystem": "default",
+            "category": "web"
+        }
+    ],
+
+    "classesToInclude": [ "org.primefaces.*", "org.apache.commons.fileupload.FileItem", "de.ayn.api.*","org.apache.*" ]
+}

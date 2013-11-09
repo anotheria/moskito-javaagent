@@ -1,0 +1,136 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <parent>
+        <groupId>net.anotheria</groupId>
+        <artifactId>testagent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.moskito</groupId>
+    <artifactId>javaagent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <name>javaagent</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>net.anotheria</groupId>
+            <artifactId>configureme</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>apache-log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-all</artifactId>
+            <version>4.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>net.anotheria</groupId>
+            <artifactId>moskito-aop</artifactId>
+            <version>2.3.1</version>
+
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+        </dependency>
+    </dependencies>
+    <build>
+        <!--<resources>-->
+            <!--<resource>-->
+                <!--<directory>${basedir}/appdata</directory>-->
+                <!--<filtering>false</filtering>-->
+                <!--<includes>-->
+                    <!--&lt;!&ndash;<include>logback.xml</include>&ndash;&gt;-->
+                <!--</includes>-->
+            <!--</resource>-->
+        <!--</resources>-->
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <index>true</index>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
+                        <manifestEntries>
+                            <Premain-Class>org.moskito.javaagent.AspectTransformationAgent</Premain-Class>
+                            <Agent-Class>org.moskito.javaagent.AspectTransformationAgent</Agent-Class>
+                            <Boot-Class-Path>appdata/</Boot-Class-Path>
+                            <Can-Redefine-Classes>true</Can-Redefine-Classes>
+                            <Can-Retransform-Classes>true</Can-Retransform-Classes>
+                        </manifestEntries>
+                        <manifestSections>
+                            <manifestSection>
+                                <name>Hudson</name>
+                                <manifestEntries>
+                                    <SvnRevision>${env.SVN_REVISION}</SvnRevision>
+                                    <BuildTag>${env.BUILD_TAG}</BuildTag>
+                                    <BuildUrl>${env.BUILD_URL}</BuildUrl>
+                                    <BuildId>${env.BUILD_ID}</BuildId>
+                                    <BuildNumber>${env.BUILD_NUMBER}</BuildNumber>
+                                    <SvnRevision>${env.SVN_REVISION}</SvnRevision>
+                                    <JavaHome>${env.JAVA_HOME}</JavaHome>
+                                </manifestEntries>
+                            </manifestSection>
+                        </manifestSections>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <index>true</index>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
+                        <manifestEntries>
+                            <Premain-Class>org.moskito.javaagent.AspectTransformationAgent</Premain-Class>
+                            <Agent-Class>org.moskito.javaagent.AspectTransformationAgent</Agent-Class>
+                            <Boot-Class-Path>appdata/</Boot-Class-Path>
+                            <Can-Redefine-Classes>true</Can-Redefine-Classes>
+                            <Can-Retransform-Classes>true</Can-Retransform-Classes>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <!-- this is used for inheritance merges -->
+                        <phase>package</phase>
+                        <!-- append to the packaging phase. -->
+                        <goals>
+                            <goal>single</goal>
+                            <!-- goals == mojos -->
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+</project>
