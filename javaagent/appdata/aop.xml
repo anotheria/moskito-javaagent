@@ -1,17 +1,13 @@
 <aspectj>
     <aspects>
         <!-- see: http://www.eclipse.org/aspectj/doc/released/devguide/ltw-configuration.html -->
-        <!--<aspect name="org.moskito.javaagent.LoadTimeMonitoringAspect"/>-->
         <concrete-aspect name="org.moskito.javaagent.ConcreteLoadTimeMonitoringAspect" extends="org.moskito.javaagent.LoadTimeMonitoringAspect">
             <pointcut name="monitoredMethod" expression="execution(* *(..))"/>
         </concrete-aspect>
     </aspects>
 
     <weaver options="-warn:none –Xlint:ignore">
-        <!--<include within="moskito.test.*"/> -verbose -showWeaveInfo -debug -->
-        <!--<include within="org.apache.jsp.*"/>-->
-        <include within="org.primefaces..*"/>
-        <!--<include within="de.ayn.api..*"/>-->
+        <include within="*.*..*"/>
     </weaver>
 
 </aspectj>

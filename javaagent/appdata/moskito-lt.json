@@ -1,18 +1,18 @@
 {
     "@monitoringClassConfig": [
         {
-            "patterns": ["org.primefaces.*", "org.apache.commons.fileupload.FileItem", "de.ayn.api.*"],
+            "patterns": ["org.primefaces.*", "org.apache.commons.fileupload.FileItem"],
             "producerId": "Primefaces",
             "subsystem": "default",
             "category": "web"
         },
         {
-            "patterns": ["org.apache.*"],
-            "producerId": "Apache",
+            "patterns": ["org.apache.struts.*"],
+            "producerId": "Apache Struts",
             "subsystem": "default",
             "category": "web"
         }
     ],
 
-    "classesToInclude": [ "org.primefaces.*", "org.apache.commons.fileupload.FileItem", "de.ayn.api.*","org.apache.*" ]
+    "classesToInclude": [ "org.primefaces.*", "org.apache.commons.fileupload.FileItem" , "org.apache.struts.*"]
 }
