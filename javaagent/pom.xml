@@ -57,7 +57,6 @@
                 <filtering>false</filtering>
                 <includes>
                     <include>logback.xml</include>
-                    <include>aop.xml</include>
                 </includes>
             </resource>
         </resources>
@@ -95,6 +94,35 @@
                         </manifestSections>
                     </archive>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.github.goldin</groupId>
+                <artifactId>copy-maven-plugin</artifactId>
+                <version>0.2.5</version>
+                <executions>
+                    <execution>
+                        <id>copy-aop</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <resources>
+                                <!-- ~~~~~~~~~~~~~~ -->
+                                <!-- Copy resources -->
+                                <!-- ~~~~~~~~~~~~~~ -->
+                                <resource>
+
+                                    <targetPath>${project.build.outputDirectory}/META-INF</targetPath>
+                                    <directory>${basedir}/appdata</directory>
+                                    <includes>
+                                        <include>aop.xml</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
