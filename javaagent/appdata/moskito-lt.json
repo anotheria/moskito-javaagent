@@ -7,12 +7,12 @@
             "category": "web"
         },
         {
-            "patterns": ["org.apache.struts.*"],
-            "producerId": "Apache Struts",
+            "patterns": ["net.anotheria.moskitosample.*"],
+            "producerId": "Moskito sample",
             "subsystem": "default",
             "category": "web"
         }
     ],
 
-    "classesToInclude": [ "org.primefaces.*", "org.apache.commons.fileupload.FileItem" , "org.apache.struts.*"]
+    "classesToInclude": [ "org.primefaces.*", "org.apache.commons.fileupload.FileItem" , "net.anotheria.moskitosample.*"]
 }
