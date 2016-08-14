@@ -1,8 +1,8 @@
 {
     "@monitoringClassConfig": [
         {
-            "patterns": ["org.primefaces.*", "org.apache.commons.fileupload.FileItem"],
-            "producerId": "Primefaces",
+            "patterns": ["test.*"],
+            "producerId": "Moskito test",
             "subsystem": "default",
             "category": "web"
         },
@@ -11,8 +11,15 @@
             "producerId": "Moskito sample",
             "subsystem": "default",
             "category": "web"
+        },
+        {
+            "patterns": ["org.primefaces.*", "org.apache.commons.fileupload.FileItem"],
+            "producerId": "Primefaces",
+            "subsystem": "default",
+            "category": "web"
         }
     ],
 
-    "classesToInclude": [ "org.primefaces.*", "org.apache.commons.fileupload.FileItem" , "net.anotheria.moskitosample.*"]
+    "classesToInclude": [ "test.*","org.primefaces.*", "org.apache.commons.fileupload.FileItem" , "net.anotheria.moskitosample.*"],
+    "mode" : "PROFILING"
 }

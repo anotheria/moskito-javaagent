@@ -18,7 +18,7 @@ public class MyJavaAgentLoader {
 
     private static final String jarFilePath = System.getProperty("user.home") + "/.m2/repository/"
             + "org/moskito/javaagent/1.0.0-SNAPSHOT/"
-            + "javaagent-1.0.0-SNAPSHOT.jar";
+            + "javaagent-1.0.0-SNAPSHOT-jar-with-dependencies.jar";
 
     public static void loadAgent() {
         logger.info("dynamically loading javaagent");

@@ -1,70 +1,93 @@
 package org.moskito.javaagent;
 
-import org.aspectj.weaver.loadtime.ClassPreProcessorAgentAdapter;
-import org.configureme.ConfigurationManager;
-import org.moskito.javaagent.config.LoadTimeMonitoringConfig;
-
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
 
+import org.aspectj.weaver.loadtime.ClassPreProcessorAgentAdapter;
+import org.moskito.javaagent.config.LoadTimeMonitoringConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
- * TODO comment this class
+ * Main moskito - agent entry-point.
  *
  * @author lrosenberg
  * @since 07.04.13 22:25
  */
 public class AspectTransformationAgent implements java.lang.instrument.ClassFileTransformer {
-    private org.aspectj.weaver.loadtime.ClassPreProcessorAgentAdapter classPreProcessorAgentAdapter = new ClassPreProcessorAgentAdapter();
-    private LoadTimeMonitoringConfig loadTimeMonitoringConfig = new LoadTimeMonitoringConfig();
+	/**
+	 * Logging util.
+	 */
+	private static final Logger LOG = LoggerFactory.getLogger(AspectTransformationAgent.class);
+	/**
+	 * {@link ClassPreProcessorAgentAdapter} instance.
+	 */
+	private ClassPreProcessorAgentAdapter classPreProcessorAgentAdapter = new ClassPreProcessorAgentAdapter();
+	/**
+	 * {@link LoadTimeMonitoringConfig} instance.
+	 */
+	private final LoadTimeMonitoringConfig loadTimeMonitoringConfig =  LoadTimeMonitoringConfig.getInstance();
 
 
-    /**
-     * JVM hook to statically load the javaagent at startup.
-     * <p/>
-     * After the Java Virtual Machine (JVM) has initialized, the premain method
-     * will be called. Then the real application main method will be called.
-     *
-     * @param args
-     * @param inst
-     * @throws Exception
-     */
-    public static void premain(String args, Instrumentation inst) {
-
-        AspectTransformationAgent aspectTransformationAgent = new AspectTransformationAgent();
-        ConfigurationManager.INSTANCE.configure(aspectTransformationAgent.loadTimeMonitoringConfig);
-        inst.addTransformer(aspectTransformationAgent);
-    }
+	/**
+	 * JVM hook to statically load the javaagent at startup.
+	 * <p>
+	 * After the Java Virtual Machine (JVM) has initialized, the premain method
+	 * will be called. Then the real application main method will be called.
+	 *
+	 * @param args arguments
+	 * @param inst {@link Instrumentation}
+	 */
+	public static void premain(String args, Instrumentation inst) {
+		LOG.info("premain method invoked with args: {} and inst: {}", args, inst);
+		AspectTransformationAgent aspectTransformationAgent = new AspectTransformationAgent();
+		inst.addTransformer(aspectTransformationAgent);
+	}
 
 
-    /**
-     * JVM hook to dynamically load javaagent at runtime.
-     * <p/>
-     * The agent class may have an agentmain method for use when the agent is
-     * started after VM startup.
-     *
-     * @param args
-     * @param inst
-     * @throws Exception
-     */
-    public static void agentmain(String args, Instrumentation inst) throws Exception {
-        inst.addTransformer(new org.moskito.javaagent.AspectTransformationAgent());
-    }
+	/**
+	 * JVM hook to dynamically load javaagent at runtime.
+	 * <p>
+	 * The agent class may have an agentmain method for use when the agent is
+	 * started after VM startup.
+	 *
+	 * @param args
+	 * 		arguments
+	 * @param inst
+	 * 		{@link Instrumentation} instance
+	 * @throws Exception
+	 */
+	public static void agentmain(String args, Instrumentation inst) throws Exception {
+		LOG.info("agentmain method invoked with args: {} and inst: {}", args, inst);
+		inst.addTransformer(new org.moskito.javaagent.AspectTransformationAgent());
+	}
 
 
-    @Override
-    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-        if (!containsClassToInclude(className)) return classfileBuffer;
-        return classPreProcessorAgentAdapter.transform(loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
-    }
+	@Override
+	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+		if (!containsClassToInclude(className))
+			return classfileBuffer;
+		return classPreProcessorAgentAdapter.transform(loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
+	}
 
-    private boolean containsClassToInclude(String className) {
-        String[] classesToExclude = loadTimeMonitoringConfig.getClassesToInclude();
-        for(String classToExclude : classesToExclude) {
-            if(className.matches(classToExclude.replace("/", "."))) {
-                return true;
-            }
-        }
-        return false;
-    }
+
+	/**
+	 * Return {@code false} in case if nothing should be included, {@code true} otherwise.
+	 *
+	 * @param className
+	 * 		name of the class
+	 * @return booean condition
+	 */
+	private boolean containsClassToInclude(final String className) {
+		final String[] toInclude = loadTimeMonitoringConfig.getClassesToInclude();
+		if (toInclude == null)
+			return false;
+		for (String classToExclude : toInclude)
+			if (className.matches(classToExclude.replace("/", ".")))
+				return true;
+
+
+		return false;
+	}
 }

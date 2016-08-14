@@ -1,19 +1,30 @@
 {
-    "@monitoringClassConfig": [
-        {
-            "patterns": ["org.primefaces.*", "org.apache.commons.fileupload.FileItem"],
-            "producerId": "Primefaces",
-            "subsystem": "default",
-            "category": "web"
-        },
-        {
-            "patterns": ["org.apache.*"],
-            "producerId": "Apache",
-            "subsystem": "default",
-            "category": "web"
-        }
-    ],
+  "@monitoringClassConfig": [
+    {
+      "patterns": [
+        "org.primefaces.*",
+        "org.apache.commons.fileupload.FileItem"
+      ],
+      "producerId": "Primefaces",
+      "subsystem": "default",
+      "category": "web"
+    },
+    {
+      "patterns": [
+        "org.apache.*"
+      ],
+      "producerId": "Apache",
+      "subsystem": "default",
+      "category": "web"
+    }
+  ],
+  "classesToInclude": [
+    "javax.*",
+    "sun.*",
+    "net.anotheria",
+    "org.aspectj",
+    "org.moskito.javaagent.instrumentations.sample.EchoTestWithoutMonitoring"
+  ],
 
-    "classesToInclude": [ "javax.*" , "sun.*", "net.anotheria", "org.aspectj" ]
-
+  "mode" : "PROFILING"
 }

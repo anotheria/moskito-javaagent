@@ -13,7 +13,22 @@
     <version>1.0.0-SNAPSHOT</version>
     <name>javaagent</name>
 
+    <properties>
+        <slf4j.version>1.7.16</slf4j.version>
+        <logback-classic.version>1.1.5</logback-classic.version>
+    </properties>
+
     <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback-classic.version}</version>
+        </dependency>
         <dependency>
             <groupId>net.anotheria</groupId>
             <artifactId>configureme</artifactId>
@@ -42,7 +57,13 @@
         <dependency>
             <groupId>net.anotheria</groupId>
             <artifactId>moskito-aop</artifactId>
-            <version>2.3.1</version>
+            <version>2.3.2</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
 
         </dependency>
         <dependency>
@@ -51,16 +72,31 @@
         </dependency>
     </dependencies>
     <build>
-        <resources>
-            <resource>
-                <directory>${basedir}/appdata</directory>
+        <sourceDirectory>${project.basedir}/java</sourceDirectory>
+        <testSourceDirectory>${project.basedir}/test/junit</testSourceDirectory>
+        <testResources>
+            <testResource>
+                <directory>${project.basedir}/test/appdata</directory>
                 <filtering>false</filtering>
                 <includes>
-                    <include>logback.xml</include>
+                    <include>*</include>
                 </includes>
-            </resource>
-        </resources>
+            </testResource>
+        </testResources>
+
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>2.4.1</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>target/*</directory>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>

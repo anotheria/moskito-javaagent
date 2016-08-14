@@ -30,6 +30,12 @@
       <dependency>
           <groupId>net.anotheria</groupId>
           <artifactId>ano-comm</artifactId>
+          <exclusions>
+              <exclusion>
+                  <artifactId>moskito-core</artifactId>
+                  <groupId>net.anotheria</groupId>
+              </exclusion>
+          </exclusions>
       </dependency>
       <dependency>
           <groupId>com.google.code.gson</groupId>
@@ -38,7 +44,7 @@
       <dependency>
         <groupId>com.sun</groupId>
         <artifactId>tools</artifactId>
-        <version>1.6.0</version>
+        <version>1.7.0</version>
         <scope>system</scope>
         <systemPath>${java.home}/../lib/tools.jar</systemPath>
       </dependency>

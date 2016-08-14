@@ -17,17 +17,16 @@ import static org.junit.Assert.assertTrue;
  *         To change this template use File | Settings | File Templates.
  */
 public class LoadTimeMonitoringConfigTest {
-    @Test
-    public void shouldConfigureMoskitoConfig() throws Exception {
-        //given
-        final LoadTimeMonitoringConfig loadTimeMonitoringConfig = new LoadTimeMonitoringConfig();
+	@Test
+	public void shouldConfigureMoskitoConfig() throws Exception {
+		//given
+		final LoadTimeMonitoringConfig loadTimeMonitoringConfig = LoadTimeMonitoringConfig.getInstance();
 
-        //when
-        ConfigurationManager.INSTANCE.configure(loadTimeMonitoringConfig);
-        //then
-        assertNotNull("Should not be null", loadTimeMonitoringConfig);
-        assertFalse("Should have excluded classes", loadTimeMonitoringConfig.getClassesToInclude().length == 0);
-        assertTrue("Should have included classes config", loadTimeMonitoringConfig.getMonitoringClassConfig().length > 0);
-    }
+
+		//then
+		assertNotNull("Should not be null", loadTimeMonitoringConfig);
+		assertFalse("Should have excluded classes", loadTimeMonitoringConfig.getClassesToInclude().length == 0);
+		assertTrue("Should have included classes config", loadTimeMonitoringConfig.getMonitoringClassConfig().length > 0);
+	}
 
 }

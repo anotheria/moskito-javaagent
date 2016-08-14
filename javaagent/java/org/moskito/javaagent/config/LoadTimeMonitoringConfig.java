@@ -1,8 +1,10 @@
 package org.moskito.javaagent.config;
 
 import com.google.gson.annotations.SerializedName;
+import org.configureme.ConfigurationManager;
 import org.configureme.annotations.Configure;
 import org.configureme.annotations.ConfigureMe;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
@@ -16,11 +18,30 @@ import java.util.Arrays;
  */
 @ConfigureMe(name = "moskito-lt")
 public class LoadTimeMonitoringConfig {
+	/**
+     * MonitoringClassConfig configurations.
+     */
     @Configure
     @SerializedName("@monitoringClassConfig")
     private MonitoringClassConfig[] monitoringClassConfig;
+	/**
+     * Classes prefixes, which should be passed to weaver. E.G [test.*, javax.*, com.MyClass] - so on.
+     */
     @Configure
     private String[] classesToInclude;
+	/**
+     * Work mode with default init.
+     */
+    @Configure
+    private WorkMode mode = WorkMode.LOG_ONLY;
+
+	/**
+     * Return configured {@link LoadTimeMonitoringConfig} object.
+     * @return {@link LoadTimeMonitoringConfig }
+     */
+    public static LoadTimeMonitoringConfig getInstance(){
+        return InstanceProvider.CONFIG.getInstance();
+    }
 
     public MonitoringClassConfig[] getMonitoringClassConfig() {
         return monitoringClassConfig;
@@ -38,13 +59,66 @@ public class LoadTimeMonitoringConfig {
         this.classesToInclude = classesToInclude;
     }
 
+    public WorkMode getMode() {
+        return mode==null ? WorkMode.LOG_ONLY : mode;
+    }
+
+    public void setMode(WorkMode mode) {
+        this.mode = mode;
+    }
+
     @Override
     public String toString() {
         final StringBuffer sb = new StringBuffer("LoadTimeMonitoringConfig{");
         sb.append("monitoringClassConfig=").append(monitoringClassConfig == null ? "null" : Arrays.asList(monitoringClassConfig).toString());
         sb.append(", classesToInclude=").append(classesToInclude == null ? "null" : Arrays.asList(classesToInclude).toString());
+        sb.append(", mode=").append(mode);
         sb.append('}');
         return sb.toString();
+    }
+
+	/**
+	 * Instance holder.
+     */
+    private enum InstanceProvider {
+		/**
+         * Instance variable.
+         */
+        CONFIG;
+		/**
+         * LoadTimeMonitoringConfig instance.
+         */
+        private LoadTimeMonitoringConfig instance;
+
+		/**
+         * Constructor.
+         */
+        InstanceProvider() {
+            instance = new LoadTimeMonitoringConfig();
+            try {
+                ConfigurationManager.INSTANCE.configure(instance);
+            }catch (final RuntimeException e){
+                LoggerFactory.getLogger(InstanceProvider.class).error(" failed to confiugre LoadTimeMonitoringConfig, defaults used");
+            }
+        }
+
+        public LoadTimeMonitoringConfig getInstance() {
+            return instance;
+        }
+    }
+
+	/**
+     * Working mode.
+     */
+    public enum WorkMode{
+		/**
+         * Log only mode.
+         */
+        LOG_ONLY,
+		/**
+         * Monitoring mode.
+         */
+        PROFILING
     }
 }
 
