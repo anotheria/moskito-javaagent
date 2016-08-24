@@ -4,6 +4,7 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
 
+import net.anotheria.moskito.webui.embedded.StartMoSKitoInspectBackendForRemote;
 import org.aspectj.weaver.loadtime.ClassPreProcessorAgentAdapter;
 import org.moskito.javaagent.config.LoadTimeMonitoringConfig;
 import org.slf4j.Logger;
@@ -27,28 +28,31 @@ public class AspectTransformationAgent implements java.lang.instrument.ClassFile
 	/**
 	 * {@link LoadTimeMonitoringConfig} instance.
 	 */
-	private final LoadTimeMonitoringConfig loadTimeMonitoringConfig =  LoadTimeMonitoringConfig.getInstance();
+	private static final LoadTimeMonitoringConfig CONFIGURATION = LoadTimeMonitoringConfig.getInstance();
 
 
 	/**
 	 * JVM hook to statically load the javaagent at startup.
-	 * <p>
+	 * <p/>
 	 * After the Java Virtual Machine (JVM) has initialized, the premain method
 	 * will be called. Then the real application main method will be called.
 	 *
-	 * @param args arguments
-	 * @param inst {@link Instrumentation}
+	 * @param args
+	 * 		arguments
+	 * @param inst
+	 * 		{@link Instrumentation}
 	 */
 	public static void premain(String args, Instrumentation inst) {
 		LOG.info("premain method invoked with args: {} and inst: {}", args, inst);
 		AspectTransformationAgent aspectTransformationAgent = new AspectTransformationAgent();
 		inst.addTransformer(aspectTransformationAgent);
+		startMoskitoBackend();
 	}
 
 
 	/**
 	 * JVM hook to dynamically load javaagent at runtime.
-	 * <p>
+	 * <p/>
 	 * The agent class may have an agentmain method for use when the agent is
 	 * started after VM startup.
 	 *
@@ -61,6 +65,23 @@ public class AspectTransformationAgent implements java.lang.instrument.ClassFile
 	public static void agentmain(String args, Instrumentation inst) throws Exception {
 		LOG.info("agentmain method invoked with args: {} and inst: {}", args, inst);
 		inst.addTransformer(new org.moskito.javaagent.AspectTransformationAgent());
+		startMoskitoBackend();
+	}
+
+	/**
+	 * Perform moskito-backend start, in case if enabled by configuration!.
+	 *
+	 */
+	private static void startMoskitoBackend() {
+
+		if (CONFIGURATION.startMoskitoBacked())
+			try {
+				LOG.info("Starting Moskito backend on " + CONFIGURATION.getMoskitoBackendPort() + " port! !");
+				StartMoSKitoInspectBackendForRemote.startMoSKitoInspectBackend(CONFIGURATION.getMoskitoBackendPort());
+				LOG.info("Starting Moskito backend on " + CONFIGURATION.getMoskitoBackendPort() + " port! Performed successfully!");
+			} catch (final Throwable mise) {
+				LOG.error("Failed to start moskitoInspect backend. [" + mise.getMessage() + "]", mise);
+			}
 	}
 
 
@@ -80,7 +101,7 @@ public class AspectTransformationAgent implements java.lang.instrument.ClassFile
 	 * @return booean condition
 	 */
 	private boolean containsClassToInclude(final String className) {
-		final String[] toInclude = loadTimeMonitoringConfig.getClassesToInclude();
+		final String[] toInclude = CONFIGURATION.getClassesToInclude();
 		if (toInclude == null)
 			return false;
 		for (String classToExclude : toInclude)

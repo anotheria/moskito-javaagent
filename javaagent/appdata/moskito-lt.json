@@ -21,5 +21,7 @@
     ],
 
     "classesToInclude": [ "test.*","org.primefaces.*", "org.apache.commons.fileupload.FileItem" , "net.anotheria.moskitosample.*"],
-    "mode" : "PROFILING"
+    "mode": "PROFILING",
+    "startMoskitoBackend": true,
+    "moskitoBackendPort": 11111
 }

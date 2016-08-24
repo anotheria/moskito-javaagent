@@ -34,6 +34,16 @@ public class LoadTimeMonitoringConfig {
      */
     @Configure
     private WorkMode mode = WorkMode.LOG_ONLY;
+	/**
+     * Allow to start moskito inspect backend.
+     */
+    @Configure
+    private boolean startMoskitoBackend = false;
+	/**
+     * Moskito backend registry port.
+     */
+    @Configure
+    private int moskitoBackendPort = 10000;
 
 	/**
      * Return configured {@link LoadTimeMonitoringConfig} object.
@@ -67,12 +77,35 @@ public class LoadTimeMonitoringConfig {
         this.mode = mode;
     }
 
+
+    public void setStartMoskitoBackend(boolean startMoskitoBackend) {
+        this.startMoskitoBackend = startMoskitoBackend;
+    }
+
+    public int getMoskitoBackendPort() {
+        return moskitoBackendPort;
+    }
+
+    public void setMoskitoBackendPort(int moskitoBackendPort) {
+        this.moskitoBackendPort = moskitoBackendPort;
+    }
+
+	/**
+	 * Return {@code true} in case if moskito inspect backend should be enabled.
+     * @return boolean value
+     */
+    public boolean startMoskitoBacked(){
+        return startMoskitoBackend && WorkMode.PROFILING == mode;
+    }
+
     @Override
     public String toString() {
         final StringBuffer sb = new StringBuffer("LoadTimeMonitoringConfig{");
         sb.append("monitoringClassConfig=").append(monitoringClassConfig == null ? "null" : Arrays.asList(monitoringClassConfig).toString());
         sb.append(", classesToInclude=").append(classesToInclude == null ? "null" : Arrays.asList(classesToInclude).toString());
         sb.append(", mode=").append(mode);
+        sb.append(", startMoskitoBackend=").append(startMoskitoBackend);
+        sb.append(", moskitoBackendPort=").append(moskitoBackendPort);
         sb.append('}');
         return sb.toString();
     }

@@ -26,5 +26,7 @@
     "org.moskito.javaagent.instrumentations.sample.EchoTestWithoutMonitoring"
   ],
 
-  "mode" : "PROFILING"
+  "mode" : "PROFILING",
+  "startMoskitoBackend": false,
+  "moskitoBackendPort": 10000
 }

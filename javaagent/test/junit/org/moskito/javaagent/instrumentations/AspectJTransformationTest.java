@@ -20,6 +20,7 @@ import net.anotheria.moskito.core.registry.ProducerRegistryFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.moskito.javaagent.AspectTransformationAgent;
+import org.moskito.javaagent.LoadTimeMonitoringAspect;
 import org.moskito.javaagent.config.LoadTimeMonitoringConfig;
 import org.moskito.javaagent.config.MonitoringClassConfig;
 import org.moskito.javaagent.instrumentations.sample.EchoTestWithoutMonitoring;
@@ -76,7 +77,8 @@ public class AspectJTransformationTest {
 			fail(e.getMessage());
 		}
 		assertFalse("Should not be empty", ProducerRegistryFactory.getProducerRegistryInstance().getProducers().isEmpty());
-		IStatsProducer producer = ProducerRegistryFactory.getProducerRegistryInstance().getProducer(clazzConfig.getProducerId());
+		final String producerId = LoadTimeMonitoringAspect.getProducerId(clazzConfig, EchoTestWithoutMonitoring.class.getName());
+		IStatsProducer producer = ProducerRegistryFactory.getProducerRegistryInstance().getProducer(producerId);
 		assertEquals("Should be annotated category ", clazzConfig.getCategory(), producer.getCategory());
 		assertEquals("Should be default subsystem ", clazzConfig.getSubsystem(), producer.getSubsystem());
 

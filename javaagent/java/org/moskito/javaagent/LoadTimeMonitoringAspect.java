@@ -5,9 +5,11 @@ import net.anotheria.moskito.core.calltrace.CurrentlyTracedCall;
 import net.anotheria.moskito.core.calltrace.RunningTraceContainer;
 import net.anotheria.moskito.core.calltrace.TraceStep;
 import net.anotheria.moskito.core.calltrace.TracedCall;
+import net.anotheria.moskito.core.dynamic.IOnDemandStatsFactory;
 import net.anotheria.moskito.core.dynamic.OnDemandStatsProducer;
 import net.anotheria.moskito.core.predefined.ServiceStats;
 import net.anotheria.moskito.core.predefined.ServiceStatsFactory;
+import net.anotheria.util.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -35,10 +37,10 @@ public abstract class LoadTimeMonitoringAspect extends AbstractMoskitoAspect<Ser
      */
     private static final Logger LOG = LoggerFactory.getLogger(LoadTimeMonitoringAspect.class);
 
-    /**
-     * Factory constant is needed to prevent continuous reinstantiation of ServiceStatsFactory objects.
-     */
-    private static final ServiceStatsFactory FACTORY = new ServiceStatsFactory();
+	/**
+	 * Factory constant is needed to prevent continuous re-instantiation of ServiceStatsFactory objects.
+	 */
+	private static final IOnDemandStatsFactory<ServiceStats> FACTORY = ServiceStatsFactory.DEFAULT_INSTANCE;
 	/**
      * Default config.
      */
@@ -63,7 +65,7 @@ public abstract class LoadTimeMonitoringAspect extends AbstractMoskitoAspect<Ser
             case LOG_ONLY:
                 return log(pjp);
             case PROFILING:
-               return DEFAULT_CONFIG==method ? pjp.proceed() :  doProfiling(pjp, method.getProducerId(), method.getSubsystem(), method.getCategory());
+                return DEFAULT_CONFIG == method ? pjp.proceed() : doProfiling(pjp, getProducerId(method, pjp.getSignature().getDeclaringTypeName()), method.getSubsystem(), method.getCategory());
             default:
                 throw new AssertionError(loadTimeMonitoringConfig.getMode() + " not supported ");
         }
@@ -80,7 +82,7 @@ public abstract class LoadTimeMonitoringAspect extends AbstractMoskitoAspect<Ser
         try {
             return pjp.proceed();
         } finally {
-            LOG.info("Entry - " + getCaseName(pjp));
+            LOG.info("Entry - " + pjp.getSignature().getDeclaringType() + "." + pjp.getSignature().getName());
         }
     }
 
@@ -96,16 +98,15 @@ public abstract class LoadTimeMonitoringAspect extends AbstractMoskitoAspect<Ser
      */
     private Object doProfiling(final ProceedingJoinPoint pjp, final String aProducerId, final String aSubsystem, final String aCategory) throws Throwable {
 
-        final OnDemandStatsProducer<ServiceStats> producer = getProducer(pjp, aProducerId, aCategory, aSubsystem, false, FACTORY);
+		final OnDemandStatsProducer<ServiceStats> producer = getProducer(pjp, aProducerId, aCategory, aSubsystem, false, FACTORY, false);
 
         final String producerId = producer.getProducerId();
 
-        final String caseName = getCaseName(pjp);
+        final String methodName = pjp.getSignature().getName();
         final ServiceStats defaultStats = producer.getDefaultStats();
-        final ServiceStats methodStats = producer.getStats(caseName);
+        final ServiceStats methodStats = producer.getStats(methodName);
 
         final Object[] args = pjp.getArgs();
-        final String method = pjp.getSignature().getName();
         defaultStats.addRequest();
         if (methodStats != null)
             methodStats.addRequest();
@@ -114,7 +115,7 @@ public abstract class LoadTimeMonitoringAspect extends AbstractMoskitoAspect<Ser
         TraceStep currentStep = null;
         final CurrentlyTracedCall currentTrace = aRunningTrace.callTraced() ? (CurrentlyTracedCall) aRunningTrace : null;
         if (currentTrace != null) {
-            final StringBuilder call = new StringBuilder(producerId).append('.').append(method).append("(");
+            final StringBuilder call = new StringBuilder(producerId).append('.').append(methodName).append("(");
             if (args != null && args.length > 0) {
                 for (int i = 0; i < args.length; i++) {
                     call.append(args[i]);
@@ -156,7 +157,7 @@ public abstract class LoadTimeMonitoringAspect extends AbstractMoskitoAspect<Ser
                 currentStep.setDuration(exTime);
                 try {
                     currentStep.appendToCall(" = " + result);
-                } catch (Throwable t) {
+                } catch (final Throwable t) {
                     currentStep.appendToCall(" = ERR: " + t.getMessage() + " (" + t.getClass() + ")");
                 }
             }
@@ -174,25 +175,28 @@ public abstract class LoadTimeMonitoringAspect extends AbstractMoskitoAspect<Ser
      * @return {@link MonitoringClassConfig}
      */
     private MonitoringClassConfig getMonitoringConfig(final String clazzName) {
-        final MonitoringClassConfig[] monitoringClassConfigs = loadTimeMonitoringConfig.getMonitoringClassConfig();
-        if (monitoringClassConfigs == null)
-            return DEFAULT_CONFIG;
+		final MonitoringClassConfig[] monitoringClassConfigs = loadTimeMonitoringConfig.getMonitoringClassConfig();
+		if (monitoringClassConfigs == null)
+			return DEFAULT_CONFIG;
 
-        for (MonitoringClassConfig mcc : monitoringClassConfigs) {
-            if (mcc.patternMatch(clazzName)) {
-                return mcc;
-            }
-        }
-        return DEFAULT_CONFIG;
-    }
+		for (MonitoringClassConfig mcc : monitoringClassConfigs)
+			if (mcc.patternMatch(clazzName))
+				return mcc;
 
-	/**
-     * Fetch case name from {@link ProceedingJoinPoint}
-     * @param pjp {@link ProceedingJoinPoint}
-     * @return clazz + method names
+		return DEFAULT_CONFIG;
+	}
+
+    /**
+     * Build producer identifier to be used.
+     *
+     * @param config
+     * 		{@link MonitoringClassConfig}
+     * @param identifier
+     * 		additional id
+     * @return producer id
      */
-    private static String getCaseName(final ProceedingJoinPoint pjp) {
-        return pjp.getSignature().getDeclaringType() + "." + pjp.getSignature().getName();
+    public static String getProducerId(final MonitoringClassConfig config, final String identifier) {
+        return StringUtils.isEmpty(identifier) ? config.getProducerId() : config.getProducerId() + " - (" + identifier + ")";
     }
 
 }
