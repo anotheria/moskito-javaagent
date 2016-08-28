@@ -52,9 +52,9 @@ like :
 In app data - defaults for logging specified in logback.xml. In case If you want to rename  some moskito loggers.
 
 ### 5) Connection from inspect moskito application with UI.
-a) Run moskito inspect application.
-b) Navigate to producer section.
-c) Provide host (localhost for local connections), port ( those  which was configured in section 2.b ("moskitoBackendPort").
-d) Connect - and find youre producers.
+* Run moskito inspect application.
+* Navigate to producer section.
+* Provide host (localhost for local connections), port ( those  which was configured in section 2.b ("moskitoBackendPort").
+* Connect - and find Your producers.
 
 Enjoy…
