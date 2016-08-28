@@ -4,7 +4,7 @@ moskito-javaagent
 
 # Basic ussage description.
 
-1) **Build and enable**
+1) ##**Build and enable**
 
   a). Get javaagent-1.0.0-SNAPSHOT.jar  artifact from {javaagent-home}/target - directory  and   put it to  some location
   b). Get {javaagent-home}/appdata  directory to same location
@@ -17,7 +17,7 @@ moskito-javaagent
 			#export JAVA_OPTS=" $JAVA_OPTS -Dcom.sun.management.jmxremote.authenticate=false"—- OPTIONAL
 
 
-2) **Configuring moskito-javaagent-config.json**
+2) ##**Configuring moskito-javaagent-config.json**
      This configuration allow to pre-select   working mode (PROFILING / LOG_ONLY)  — in log only mode all   class/methods  will be simply dumped into  info - log
   	 in PROFILING mode - core  moskito functionality will  take a part
 
@@ -34,9 +34,9 @@ moskito-javaagent
  			``` "startMoskitoBackend": true,
   			 "moskitoBackendPort": 11111```
 
-3)  **Logging configuration changes**
+3)  ##**Logging configuration changes**
 
-		moskito-aspect-config.json  allow to provide  other   logger names.  By default  loggers will be
+		**moskito-aspect-config.json**  allow to provide  other   logger names.  By default  loggers will be
 		MoskitoDefault ( see logback.xml),  Moskito1m, Moskito1h - etc….
 
 		NOTE :
@@ -51,7 +51,7 @@ moskito-javaagent
 
 		In app data - defaults for logging specified in logback.xml. In case If you want to rename  some moskito loggers.
 
-4) **Connection from inspect moskito application with UI.**
+4) ##**Connection from inspect moskito application with UI.**
     a) Run moskito inspect application.
     b) Navigate to producer section.
     c) Provide host (localhost for local connections), port ( those  which was configured in section 2.b ("moskitoBackendPort").
