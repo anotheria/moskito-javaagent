@@ -36,18 +36,27 @@ b)	In case if you want to connect  from  mosquito ui - select   port  - 11111 - 
 
 ### 4) Logging configuration changes.
 
-[moskito-aspect-config.json]  allow to provide  other   logger names.  By default  loggers will beMoskitoDefault ( see logback.xml),
+[moskito-aspect-config.json]  allow to provide  other   logger names.  By default  loggers will be - MoskitoDefault ( see logback.xml),
  Moskito1m, Moskito1h - etc….
 
 NOTE :
-"attachDefaultStatLoggers": true  - enables logback logging for defaults stats
-2 other properties "defaultMoskitoLoggerName": “",  -  defines default logger name  ( “MoskitoDefault” -  by  global default )
-"@loggers": [],  -  allow to   create  intervalName - logger name mapping
+					"attachDefaultStatLoggers": true  - enables logback logging for defaults stats
+					"defaultMoskitoLoggerName": “",  -  defines default logger name  ( “MoskitoDefault” -  by  global default )
+					"@loggers": [],  -  allow to   create  intervalName - logger name mapping
 like :
-> 		{
+>
+>{
+>   "@intervalLogger": {
+>     "defaultMoskitoLoggerName": "",
+>     "@loggers": [
+>		{
 > 			“intervalName” : “1s”,
 >			“loggerName” : “MoskitoOneSecondIntervalLogger”
->		}
+>		}],
+>     "attachDefaultStatLoggers": true
+>   }
+> }
+>
 
 In app data - defaults for logging specified in logback.xml. In case If you want to rename  some moskito loggers.
 
