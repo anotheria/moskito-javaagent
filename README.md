@@ -22,11 +22,13 @@ This configuration allow to pre-select   working mode (PROFILING / LOG_ONLY)  �
 in PROFILING mode - core  moskito functionality will  take a part.
 
 a) Add monitoring sections ( Patterns  defines classes which will be weaver ( wrapped into monitoring aspect ))!
->        {
->           "patterns": ["com.test.*"],
->           "subsystem": "default",
->           "category": “foo-bar"
->        }
+```json
+        {
+           "patterns": ["com.test.*"],
+           "subsystem": "default",
+           "category": “foo-bar"
+        }
+```
 
 (in logs & in scope of producers UI view  You will see "com.test.Foo" and ,"com.test.Bar" entries…… )
 
@@ -44,19 +46,19 @@ NOTE :
 					"defaultMoskitoLoggerName": “",  -  defines default logger name  ( “MoskitoDefault” -  by  global default )
 					"@loggers": [],  -  allow to   create  intervalName - logger name mapping
 like :
->
->{
->   "@intervalLogger": {
->     "defaultMoskitoLoggerName": "",
->     "@loggers": [
->		{
-> 			“intervalName” : “1s”,
->			“loggerName” : “MoskitoOneSecondIntervalLogger”
->		}],
->     "attachDefaultStatLoggers": true
->   }
-> }
->
+```json
+{
+   "@intervalLogger": {
+     "defaultMoskitoLoggerName": "",
+     "@loggers": [
+		{
+ 			“intervalName” : “1s”,
+			“loggerName” : “MoskitoOneSecondIntervalLogger”
+		}],
+     "attachDefaultStatLoggers": true
+   }
+}
+```
 
 In app data - defaults for logging specified in logback.xml. In case If you want to rename  some moskito loggers.
 
