@@ -20,9 +20,8 @@ import net.anotheria.moskito.core.registry.ProducerRegistryFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.moskito.javaagent.AspectTransformationAgent;
-import org.moskito.javaagent.LoadTimeMonitoringAspect;
-import org.moskito.javaagent.config.LoadTimeMonitoringConfig;
-import org.moskito.javaagent.config.MonitoringClassConfig;
+import org.moskito.javaagent.config.JavaAgentConfig;
+import org.moskito.javaagent.config.JavaAgentConfig.MonitoringClassConfig;
 import org.moskito.javaagent.instrumentations.sample.EchoTestWithoutMonitoring;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.util.TraceClassVisitor;
@@ -41,16 +40,17 @@ public class AspectJTransformationTest {
 	@Test
 	public void profilingTest() throws Exception {
 		// enable monitoring!
-		final LoadTimeMonitoringConfig monitoringConfig = LoadTimeMonitoringConfig.getInstance();
-		monitoringConfig.setMode(LoadTimeMonitoringConfig.WorkMode.PROFILING);
+		final JavaAgentConfig monitoringConfig = JavaAgentConfig.getInstance();
+		monitoringConfig.setMode(JavaAgentConfig.WorkMode.PROFILING);
 		final MonitoringClassConfig clazzConfig = new MonitoringClassConfig();
 		clazzConfig.setPatterns(new String[] {EchoTestWithoutMonitoring.class.getName()});
 		clazzConfig.setCategory("1");
 		clazzConfig.setSubsystem("1");
-		clazzConfig.setProducerId("EchoTestWithoutMonitoring");
 		List<MonitoringClassConfig> allClassConfigs = new ArrayList<>(Arrays.asList(monitoringConfig.getMonitoringClassConfig()));
 		allClassConfigs.add(clazzConfig);
 		monitoringConfig.setMonitoringClassConfig(allClassConfigs.toArray(new MonitoringClassConfig[allClassConfigs.size()]));
+		//reinit
+		monitoringConfig.init();
 
 		final Class classToTransform = EchoTestWithoutMonitoring.class;
 		ClassFileTransformer classFileTransformer = new AspectTransformationAgent();
@@ -77,7 +77,7 @@ public class AspectJTransformationTest {
 			fail(e.getMessage());
 		}
 		assertFalse("Should not be empty", ProducerRegistryFactory.getProducerRegistryInstance().getProducers().isEmpty());
-		final String producerId = LoadTimeMonitoringAspect.getProducerId(clazzConfig, EchoTestWithoutMonitoring.class.getName());
+		final String producerId =  EchoTestWithoutMonitoring.class.getName();
 		IStatsProducer producer = ProducerRegistryFactory.getProducerRegistryInstance().getProducer(producerId);
 		assertEquals("Should be annotated category ", clazzConfig.getCategory(), producer.getCategory());
 		assertEquals("Should be default subsystem ", clazzConfig.getSubsystem(), producer.getSubsystem());
@@ -87,8 +87,8 @@ public class AspectJTransformationTest {
 	@Test
 	public void loggingTest() throws Exception {
 		// enable logging!
-		LoadTimeMonitoringConfig cnf = LoadTimeMonitoringConfig.getInstance();
-		cnf.setMode(LoadTimeMonitoringConfig.WorkMode.LOG_ONLY);
+		JavaAgentConfig cnf = JavaAgentConfig.getInstance();
+		cnf.setMode(JavaAgentConfig.WorkMode.LOG_ONLY);
 		final Class classToTransform = EchoTestWithoutMonitoring.class;
 		ClassFileTransformer classFileTransformer = new AspectTransformationAgent();
 		System.setProperty("org.aspectj.weaver.loadtime.configuration", "aop.xml");

@@ -6,7 +6,7 @@ import java.security.ProtectionDomain;
 
 import net.anotheria.moskito.webui.embedded.StartMoSKitoInspectBackendForRemote;
 import org.aspectj.weaver.loadtime.ClassPreProcessorAgentAdapter;
-import org.moskito.javaagent.config.LoadTimeMonitoringConfig;
+import org.moskito.javaagent.config.JavaAgentConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,9 +26,9 @@ public class AspectTransformationAgent implements java.lang.instrument.ClassFile
 	 */
 	private ClassPreProcessorAgentAdapter classPreProcessorAgentAdapter = new ClassPreProcessorAgentAdapter();
 	/**
-	 * {@link LoadTimeMonitoringConfig} instance.
+	 * {@link JavaAgentConfig} instance.
 	 */
-	private static final LoadTimeMonitoringConfig CONFIGURATION = LoadTimeMonitoringConfig.getInstance();
+	private static final JavaAgentConfig CONFIGURATION = JavaAgentConfig.getInstance();
 
 
 	/**
@@ -86,29 +86,12 @@ public class AspectTransformationAgent implements java.lang.instrument.ClassFile
 
 
 	@Override
-	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-		if (!containsClassToInclude(className))
+	public byte[] transform(final ClassLoader loader, final String className, Class<?> classBeingRedefined, final ProtectionDomain protectionDomain, final byte[] classfileBuffer) throws IllegalClassFormatException {
+		if (!CONFIGURATION.shouldPerformWeaving(className))
 			return classfileBuffer;
 		return classPreProcessorAgentAdapter.transform(loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
 	}
 
 
-	/**
-	 * Return {@code false} in case if nothing should be included, {@code true} otherwise.
-	 *
-	 * @param className
-	 * 		name of the class
-	 * @return booean condition
-	 */
-	private boolean containsClassToInclude(final String className) {
-		final String[] toInclude = CONFIGURATION.getClassesToInclude();
-		if (toInclude == null)
-			return false;
-		for (String classToExclude : toInclude)
-			if (className.matches(classToExclude.replace("/", ".")))
-				return true;
 
-
-		return false;
-	}
 }

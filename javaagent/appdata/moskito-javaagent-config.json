@@ -2,25 +2,20 @@
     "@monitoringClassConfig": [
         {
             "patterns": ["test.*"],
-            "producerId": "Moskito test",
             "subsystem": "default",
             "category": "web"
         },
         {
             "patterns": ["net.anotheria.moskitosample.*"],
-            "producerId": "Moskito sample",
             "subsystem": "default",
             "category": "web"
         },
         {
             "patterns": ["org.primefaces.*", "org.apache.commons.fileupload.FileItem"],
-            "producerId": "Primefaces",
             "subsystem": "default",
             "category": "web"
         }
     ],
-
-    "classesToInclude": [ "test.*","org.primefaces.*", "org.apache.commons.fileupload.FileItem" , "net.anotheria.moskitosample.*"],
     "mode": "PROFILING",
     "startMoskitoBackend": true,
     "moskitoBackendPort": 11111
