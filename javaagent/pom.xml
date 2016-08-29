@@ -13,7 +13,42 @@
     <version>1.0.0-SNAPSHOT</version>
     <name>javaagent</name>
 
+
     <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>net.anotheria</groupId>
+            <artifactId>moskito-aop</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
+
+        </dependency>
+        <dependency>
+            <groupId>net.anotheria</groupId>
+            <artifactId>moskito-webui</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>moskito-web</artifactId>
+                    <groupId>net.anotheria</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>net.anotheria</groupId>
             <artifactId>configureme</artifactId>
@@ -40,27 +75,40 @@
         </dependency>
 
         <dependency>
-            <groupId>net.anotheria</groupId>
-            <artifactId>moskito-aop</artifactId>
-            <version>2.3.1</version>
-
-        </dependency>
-        <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
         </dependency>
+
+
     </dependencies>
+
+
     <build>
-        <resources>
-            <resource>
-                <directory>${basedir}/appdata</directory>
+        <sourceDirectory>${project.basedir}/java</sourceDirectory>
+        <testSourceDirectory>${project.basedir}/test/junit</testSourceDirectory>
+        <testResources>
+            <testResource>
+                <directory>${project.basedir}/test/appdata</directory>
                 <filtering>false</filtering>
                 <includes>
-                    <include>logback.xml</include>
+                    <include>*</include>
                 </includes>
-            </resource>
-        </resources>
+            </testResource>
+        </testResources>
+
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>2.4.1</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>target/*</directory>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -121,37 +169,37 @@
                 </executions>
             </plugin>
             <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.2</version>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                    <archive>
-                        <index>true</index>
-                        <manifest>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                        </manifest>
-                        <manifestEntries>
-                            <Premain-Class>org.moskito.javaagent.AspectTransformationAgent</Premain-Class>
-                            <Agent-Class>org.moskito.javaagent.AspectTransformationAgent</Agent-Class>
-                            <Boot-Class-Path>appdata/</Boot-Class-Path>
-                            <Can-Redefine-Classes>true</Can-Redefine-Classes>
-                            <Can-Retransform-Classes>true</Can-Retransform-Classes>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>1.4</version>
                 <executions>
                     <execution>
-                        <id>make-assembly</id>
-                        <!-- this is used for inheritance merges -->
                         <phase>package</phase>
-                        <!-- append to the packaging phase. -->
                         <goals>
-                            <goal>single</goal>
-                            <!-- goals == mojos -->
+                            <goal>shade</goal>
                         </goals>
+                        <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>**/web-fragment.xml</exclude>
+                                        <exclude>**/*.tld</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <manifestEntries>
+                                        <Premain-Class>org.moskito.javaagent.AspectTransformationAgent</Premain-Class>
+                                        <Agent-Class>org.moskito.javaagent.AspectTransformationAgent</Agent-Class>
+                                        <Boot-Class-Path>appdata/</Boot-Class-Path>
+                                        <Can-Redefine-Classes>true</Can-Redefine-Classes>
+                                        <Can-Retransform-Classes>true</Can-Retransform-Classes>
+                                    </manifestEntries>
+                                </transformer>
+                            </transformers>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

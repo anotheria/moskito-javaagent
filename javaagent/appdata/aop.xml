@@ -6,8 +6,8 @@
         </concrete-aspect>
     </aspects>
 
-    <weaver options="-warn:none –Xlint:ignore">
-        <include within="*.*..*"/>
+    <weaver options="-verbose -showWeaveInfo -debug">
+        <include within="*.*"/>
     </weaver>
 
 </aspectj>

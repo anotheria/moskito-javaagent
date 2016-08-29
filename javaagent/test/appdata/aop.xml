@@ -2,12 +2,12 @@
     <aspects>
         <!-- see: http://www.eclipse.org/aspectj/doc/released/devguide/ltw-configuration.html -->
         <concrete-aspect name="org.moskito.javaagent.ConcreteLoadTimeMonitoringAspect" extends="org.moskito.javaagent.LoadTimeMonitoringAspect">
-            <pointcut name="monitoredMethod" expression="execution(moskito.test.* *(..))"/>
+            <pointcut name="monitoredMethod" expression="execution(* *(..))"/>
         </concrete-aspect>
     </aspects>
 
     <weaver options="-verbose -showWeaveInfo -debug">
-        <include within="moskito.test.TestMain"/>
+        <include within="org.moskito.javaagent..*"/>
     </weaver>
 
 </aspectj>
