@@ -1,5 +1,6 @@
 # Maven build directory 
-target/
+/javaagent/target/
+/integration-scenario-test/target/
 
 # Eclipse related dir's/files
 .project
@@ -17,3 +18,4 @@ tmp/
 
 # Other temporary dir's/files
 logs/
+*/logs/
