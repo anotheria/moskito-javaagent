@@ -1,0 +1,23 @@
+{
+  "@monitoringClassConfig": [
+    {
+      "patterns": [
+        "org.primefaces.*",
+        "org.apache.commons.fileupload.FileItem"
+      ],
+      "subsystem": "default",
+      "category": "web"
+    },
+    {
+      "patterns": [
+        "org.apache.*"
+      ],
+      "subsystem": "default",
+      "category": "web"
+    }
+  ],
+
+  "mode" : "PROFILING",
+  "startMoskitoBackend": false,
+  "moskitoBackendPort": 10000
+}

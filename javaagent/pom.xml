@@ -3,7 +3,7 @@
 
     <parent>
         <groupId>net.anotheria</groupId>
-        <artifactId>testagent</artifactId>
+        <artifactId>moskito-javaagent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
@@ -84,18 +84,6 @@
 
 
     <build>
-        <sourceDirectory>${project.basedir}/java</sourceDirectory>
-        <testSourceDirectory>${project.basedir}/test/junit</testSourceDirectory>
-        <testResources>
-            <testResource>
-                <directory>${project.basedir}/test/appdata</directory>
-                <filtering>false</filtering>
-                <includes>
-                    <include>*</include>
-                </includes>
-            </testResource>
-        </testResources>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -158,9 +146,29 @@
                             <outputDirectory>${project.build.outputDirectory}/META-INF</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>${basedir}/appdata</directory>
+                                    <directory>${basedir}/src/main/resources</directory>
                                     <includes>
                                         <include>aop.xml</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <!-- create special appdata folder - to be used as bootPath -->
+                        <id>copy-resources-to-appdata</id>
+                        <!-- here the phase you need -->
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/appdata</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/src/main/resources</directory>
+                                    <includes>
+                                        <include>*.*</include>
                                     </includes>
                                 </resource>
                             </resources>
@@ -183,8 +191,14 @@
                                 <filter>
                                     <artifact>*:*</artifact>
                                     <excludes>
+                                        <!-- exclude aop - as it placed into META-INF-->
+                                        <exclude>**/aop.xml</exclude>
+                                        <!-- exclude logback - as it wil be provided from appdata/-->
+                                        <exclude>**/logback.xml</exclude>
                                         <exclude>**/web-fragment.xml</exclude>
                                         <exclude>**/*.tld</exclude>
+                                        <!-- exclude all configurations - as it wil be provided from appdata/-->
+                                        <exclude>**/*.json</exclude>
                                     </excludes>
                                 </filter>
                             </filters>

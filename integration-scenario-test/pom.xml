@@ -1,0 +1,100 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <parent>
+        <groupId>net.anotheria</groupId>
+        <artifactId>moskito-javaagent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>test</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <name>integration-scenario-test</name>
+
+    <properties>
+        <moskito.version>2.7.6-SNAPSHOT</moskito.version>
+        <slf4j.version>1.7.16</slf4j.version>
+        <logback-classic.version>1.1.5</logback-classic.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback-classic.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.anotheria</groupId>
+            <artifactId>moskito-aop</artifactId>
+            <version>${moskito.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
+
+        </dependency>
+        <dependency>
+            <groupId>net.anotheria</groupId>
+            <artifactId>moskito-webui</artifactId>
+            <version>${moskito.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>moskito-web</artifactId>
+                    <groupId>net.anotheria</groupId>
+                </exclusion>
+            </exclusions>
+
+        </dependency>
+
+
+        <dependency>
+            <groupId>net.anotheria</groupId>
+            <artifactId>ano-util</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>blowfish</groupId>
+                    <artifactId>blowfish</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>net.anotheria</groupId>
+            <artifactId>configureme</artifactId>
+        </dependency>
+        <!-- for mail support -->
+        <dependency>
+            <groupId>net.anotheria</groupId>
+            <artifactId>ano-comm</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>moskito-core</artifactId>
+                    <groupId>net.anotheria</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun</groupId>
+            <artifactId>tools</artifactId>
+            <version>1.7.0</version>
+            <scope>system</scope>
+            <systemPath>${java.home}/../lib/tools.jar</systemPath>
+        </dependency>
+    </dependencies>
+</project>

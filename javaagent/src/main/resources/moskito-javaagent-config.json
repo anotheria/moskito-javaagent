@@ -1,0 +1,22 @@
+{
+    "@monitoringClassConfig": [
+        {
+            "patterns": ["test.*"],
+            "subsystem": "default",
+            "category": "web"
+        },
+        {
+            "patterns": ["net.anotheria.moskitosample.*"],
+            "subsystem": "default",
+            "category": "web"
+        },
+        {
+            "patterns": ["org.primefaces.*", "org.apache.commons.fileupload.FileItem"],
+            "subsystem": "default",
+            "category": "web"
+        }
+    ],
+    "mode": "PROFILING",
+    "startMoskitoBackend": true,
+    "moskitoBackendPort": 11111
+}
