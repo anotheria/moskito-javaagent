@@ -26,7 +26,7 @@ a) Add monitoring sections ( Patterns  defines classes which will be weaver ( wr
         {
            "patterns": ["com.test.*"],
            "subsystem": "default",
-           "category": “foo-bar"
+           "category": "foo-bar"
         }
 ```
 
