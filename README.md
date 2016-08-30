@@ -52,7 +52,7 @@ like :
      "defaultMoskitoLoggerName": "",
      "@loggers": [
 		{
- 			"intervalName" : “1s",
+ 			"intervalName" : "1s",
 			"loggerName" : "MoskitoOneSecondIntervalLogger"
 		}],
      "attachDefaultStatLoggers": true
