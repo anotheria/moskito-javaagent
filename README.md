@@ -2,7 +2,7 @@ moskito-javaagent
 =================
 
 
-# Basic ussage description.
+# Basic usage description.
 
 ### 1) Build and enable.
 
