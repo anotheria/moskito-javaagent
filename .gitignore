@@ -1,0 +1,21 @@
+# Maven build directory 
+/javaagent/target/
+/integration-scenario-test/target/
+
+# Eclipse related dir's/files
+.project
+.metadata
+.classpath
+.settings/
+bin/
+tmp/
+
+# IntelliJ related dir's/files
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Other temporary dir's/files
+logs/
+*/logs/

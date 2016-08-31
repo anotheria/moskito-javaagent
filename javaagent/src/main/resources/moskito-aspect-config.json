@@ -1,0 +1,7 @@
+{
+  "@intervalLogger": {
+    "defaultMoskitoLoggerName": "",
+    "@loggers": [],
+    "attachDefaultStatLoggers": true
+  }
+}

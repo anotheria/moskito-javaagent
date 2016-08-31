@@ -7,13 +7,13 @@ moskito-javaagent
 ### 1) Build and enable.
 
   a). Get javaagent-1.0.0-SNAPSHOT.jar  artifact from {javaagent-home}/target - directory  and   put it to  some location
-  b). Get {javaagent-home}/appdata  directory to same location
+  b). Get {javaagent-home}/target/appdata  directory to same location ( provides all required configurations and will be used as bootPath for agent)
 
 ### 2) Add  moskito javaagent to You're app, as  java-agent
    	as example:
-			export JAVA_OPTS=" $JAVA_OPTS -javaagent:/[fulll   path]/javaagent/target/javaagent-1.0.0-SNAPSHOT.jar”
-			#export JAVA_OPTS=" $JAVA_OPTS -Dcom.sun.management.jmxremote”     —- OPTIONAL
-			#export JAVA_OPTS=" $JAVA_OPTS -Dcom.sun.management.jmxremote.port=10000” —- OPTIONAL
+			export JAVA_OPTS=" $JAVA_OPTS -javaagent:/[fulll   path]/javaagent/target/javaagent-1.0.0-SNAPSHOT.jar"
+			#export JAVA_OPTS=" $JAVA_OPTS -Dcom.sun.management.jmxremote"     —- OPTIONAL
+			#export JAVA_OPTS=" $JAVA_OPTS -Dcom.sun.management.jmxremote.port=10000" —- OPTIONAL
 			#export JAVA_OPTS=" $JAVA_OPTS -Dcom.sun.management.jmxremote.authenticate=false"—- OPTIONAL
 
 
@@ -26,7 +26,7 @@ a) Add monitoring sections ( Patterns  defines classes which will be weaver ( wr
         {
            "patterns": ["com.test.*"],
            "subsystem": "default",
-           "category": “foo-bar"
+           "category": "foo-bar"
         }
 ```
 
@@ -43,7 +43,7 @@ b)	In case if you want to connect  from  mosquito ui - select   port  - 11111 - 
 
 NOTE :
 					"attachDefaultStatLoggers": true  - enables logback logging for defaults stats
-					"defaultMoskitoLoggerName": “",  -  defines default logger name  ( “MoskitoDefault” -  by  global default )
+					"defaultMoskitoLoggerName": "",  -  defines default logger name  ( “MoskitoDefault” -  by  global default )
 					"@loggers": [],  -  allow to   create  intervalName - logger name mapping
 like :
 ```json
@@ -52,8 +52,8 @@ like :
      "defaultMoskitoLoggerName": "",
      "@loggers": [
 		{
- 			“intervalName” : “1s”,
-			“loggerName” : “MoskitoOneSecondIntervalLogger”
+ 			"intervalName" : "1s",
+			"loggerName" : "MoskitoOneSecondIntervalLogger"
 		}],
      "attachDefaultStatLoggers": true
    }

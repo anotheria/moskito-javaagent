@@ -1,0 +1,216 @@
+<configuration>
+
+	<appender name="DebugAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>DEBUG</level>
+		</filter>
+		<file>logs/msk-agent-debug.log</file>
+		<append>true</append>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>logs/msk-agent-debug.%i.log.zip</fileNamePattern>
+			<minIndex>1</minIndex>
+			<maxIndex>5</maxIndex>
+		</rollingPolicy>
+		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>100MB</maxFileSize>
+		</triggeringPolicy>
+		<encoder>
+			<pattern>%r %d [%t] %-5le %marker %lo{32}:%L - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="InfoAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>INFO</level>
+		</filter>
+		<file>logs/msk-agent-info.log</file>
+		<append>true</append>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>logs/msk-agent-info.%i.log.zip</fileNamePattern>
+			<minIndex>1</minIndex>
+			<maxIndex>5</maxIndex>
+		</rollingPolicy>
+		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>100MB</maxFileSize>
+		</triggeringPolicy>
+		<encoder>
+			<pattern>%r %d [%t] %-5le %marker %lo{32}:%L - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="WarnAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>WARN</level>
+		</filter>
+		<file>logs/msk-agent-warn.log</file>
+		<append>true</append>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>logs/msk-agent-warn.%i.log.zip</fileNamePattern>
+			<minIndex>1</minIndex>
+			<maxIndex>5</maxIndex>
+		</rollingPolicy>
+		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>100MB</maxFileSize>
+		</triggeringPolicy>
+		<encoder>
+			<pattern>%r %d [%t] %-5le %marker %lo{32}:%L - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="ErrorAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>ERROR</level>
+		</filter>
+		<file>logs/msk-agent-error.log</file>
+		<append>true</append>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>logs/msk-agent-error.%i.log.zip</fileNamePattern>
+			<minIndex>1</minIndex>
+			<maxIndex>5</maxIndex>
+		</rollingPolicy>
+		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>100MB</maxFileSize>
+		</triggeringPolicy>
+		<encoder>
+			<pattern>%r %d [%t] %-5le %marker %lo{32}:%L - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="ConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>INFO</level>
+		</filter>
+		<encoder>
+			<pattern>%r %d [%t] %-5le %marker %lo{32}:%L - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<!-- Moskito Appenders: START -->
+	<appender name="MoskitoDefaultAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>INFO</level>
+		</filter>
+		<file>logs/moskito_default.log</file>
+		<append>true</append>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>logs/moskito_default.%i.log.zip</fileNamePattern>
+			<minIndex>1</minIndex>
+			<maxIndex>10</maxIndex>
+		</rollingPolicy>
+		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>100MB</maxFileSize>
+		</triggeringPolicy>
+		<encoder>
+			<pattern>%r %d [%t] %-5le %marker %lo{64}:%L - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="Moskito5mAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>INFO</level>
+		</filter>
+		<file>logs/moskito_5m.log</file>
+		<append>true</append>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>logs/moskito_5m.%i.log.zip</fileNamePattern>
+			<minIndex>1</minIndex>
+			<maxIndex>10</maxIndex>
+		</rollingPolicy>
+		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>100MB</maxFileSize>
+		</triggeringPolicy>
+		<encoder>
+			<pattern>%r %d [%t] %-5le %marker %lo{64}:%L - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="Moskito15mAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>INFO</level>
+		</filter>
+		<file>logs/moskito_15m.log</file>
+		<append>true</append>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>logs/moskito_15m.%i.log.zip</fileNamePattern>
+			<minIndex>1</minIndex>
+			<maxIndex>10</maxIndex>
+		</rollingPolicy>
+		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>100MB</maxFileSize>
+		</triggeringPolicy>
+		<encoder>
+			<pattern>%r %d [%t] %-5le %marker %lo{64}:%L - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="Moskito1hAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>INFO</level>
+		</filter>
+		<file>logs/moskito_1h.log</file>
+		<append>true</append>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>logs/moskito_1h.%i.log.zip</fileNamePattern>
+			<minIndex>1</minIndex>
+			<maxIndex>10</maxIndex>
+		</rollingPolicy>
+		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>100MB</maxFileSize>
+		</triggeringPolicy>
+		<encoder>
+			<pattern>%r %d [%t] %-5le %marker %lo{64}:%L - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="Moskito1dAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>INFO</level>
+		</filter>
+		<file>logs/moskito_1d.log</file>
+		<append>true</append>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>logs/moskito_1d.%i.log.zip</fileNamePattern>
+			<minIndex>1</minIndex>
+			<maxIndex>10</maxIndex>
+		</rollingPolicy>
+		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>100MB</maxFileSize>
+		</triggeringPolicy>
+		<encoder>
+			<pattern>%r %d [%t] %-5le %marker %lo{64}:%L - %msg%n</pattern>
+		</encoder>
+	</appender>
+	<!-- Moskito Appenders: END -->
+
+	<logger name="org.moskito" level="INFO" additivity="false">
+		<appender-ref ref="InfoAppender" />
+		<appender-ref ref="WarnAppender" />
+		<appender-ref ref="ErrorAppender" />
+		<appender-ref ref="ConsoleAppender" />
+	</logger>
+
+	<!-- Moskito Loggers: START -->
+	<logger name="MoskitoDefault" level="INFO" additivity="false">
+		<appender-ref ref="MoskitoDefaultAppender" />
+	</logger>
+	<logger name="Moskito5m" level="INFO" additivity="false">
+		<appender-ref ref="Moskito5mAppender" />
+	</logger>
+	<logger name="Moskito15m" level="INFO" additivity="false">
+		<appender-ref ref="Moskito15mAppender" />
+	</logger>
+	<logger name="Moskito1h" level="INFO" additivity="false">
+		<appender-ref ref="Moskito1hAppender" />
+	</logger>
+	<logger name="Moskito1d" level="INFO" additivity="false">
+		<appender-ref ref="Moskito1dAppender" />
+	</logger>
+	<!-- Moskito Loggers: END -->
+
+
+	<root level="ERROR">
+		<appender-ref ref="ErrorAppender" />
+		<appender-ref ref="ConsoleAppender" />
+	</root>
+
+</configuration>
