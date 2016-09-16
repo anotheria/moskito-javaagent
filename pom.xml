@@ -25,6 +25,8 @@
         <moskito.version>2.7.6-SNAPSHOT</moskito.version>
         <slf4j.version>1.7.16</slf4j.version>
         <logback-classic.version>1.1.5</logback-classic.version>
+        <aspect-j-version>1.8.9</aspect-j-version>
+
     </properties>
 
     <dependencyManagement>
@@ -137,17 +139,17 @@
             <dependency>
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjrt</artifactId>
-                <version>1.7.3</version>
+                <version>${aspect-j-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjtools</artifactId>
-                <version>1.7.3</version>
+                <version>${aspect-j-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjweaver</artifactId>
-                <version>1.7.3</version>
+                <version>${aspect-j-version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.code.gson</groupId>

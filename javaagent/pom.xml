@@ -47,6 +47,10 @@
                     <artifactId>moskito-web</artifactId>
                     <groupId>net.anotheria</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>javassist</artifactId>
+                    <groupId>javassist</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -192,7 +196,9 @@
                                     <artifact>*:*</artifact>
                                     <excludes>
                                         <!-- exclude aop - as it placed into META-INF-->
-                                        <exclude>**/aop.xml</exclude>
+                                        <exclude>aop.xml</exclude>
+                                        <!-- exclude m-k static resources-->
+                                        <exclude>moskito/**</exclude>
                                         <!-- exclude logback - as it wil be provided from appdata/-->
                                         <exclude>**/logback.xml</exclude>
                                         <exclude>**/web-fragment.xml</exclude>
