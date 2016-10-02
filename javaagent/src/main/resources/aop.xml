@@ -6,7 +6,7 @@
         </concrete-aspect>
     </aspects>
 
-    <weaver options="-verbose -showWeaveInfo -debug">
+    <weaver options="-verbose -showWeaveInfo">
         <include within="*"/>
     </weaver>
 
