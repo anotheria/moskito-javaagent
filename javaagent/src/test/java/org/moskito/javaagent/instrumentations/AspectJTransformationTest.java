@@ -77,8 +77,9 @@ public class AspectJTransformationTest {
 			fail(e.getMessage());
 		}
 		assertFalse("Should not be empty", ProducerRegistryFactory.getProducerRegistryInstance().getProducers().isEmpty());
-		final String producerId =  EchoTestWithoutMonitoring.class.getName();
+		final String producerId = clazzConfig.getNameResolverType().resolveEntry(EchoTestWithoutMonitoring.class, "echo", monitoringConfig.getMode());
 		IStatsProducer producer = ProducerRegistryFactory.getProducerRegistryInstance().getProducer(producerId);
+		Assert.assertNotNull("Producer is NULL", producer);
 		assertEquals("Should be annotated category ", clazzConfig.getCategory(), producer.getCategory());
 		assertEquals("Should be default subsystem ", clazzConfig.getSubsystem(), producer.getSubsystem());
 

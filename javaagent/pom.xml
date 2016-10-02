@@ -51,6 +51,10 @@
                     <artifactId>javassist</artifactId>
                     <groupId>javassist</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>ano-tags</artifactId>
+                    <groupId>net.anotheria</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>

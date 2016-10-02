@@ -2,6 +2,7 @@ package org.moskito.javaagent;
 
 import java.lang.reflect.InvocationTargetException;
 
+import org.moskito.javaagent.config.EntryNameResolverType;
 import org.moskito.javaagent.config.JavaAgentConfig;
 import net.anotheria.moskito.aop.aspect.AbstractMoskitoAspect;
 import net.anotheria.moskito.core.calltrace.CurrentlyTracedCall;
@@ -54,13 +55,19 @@ public abstract class LoadTimeMonitoringAspect extends AbstractMoskitoAspect<Ser
 
 	@Around (value = "monitoredMethod()")
 	public Object doProfilingMethod(final ProceedingJoinPoint pjp) throws Throwable {
+		final JavaAgentConfig.WorkMode mode = agentConfig.getMode();
+		if (mode == null) {
+			LOG.warn("Wrong configuration detected! Working mode is NULL! performing proceede operation!");
+			return pjp.proceed();
+		}
+
 		switch (agentConfig.getMode()) {
 			case LOG_ONLY:
 				return log(pjp);
 			case PROFILING:
 				final MonitoringClassConfig configuration = agentConfig.getMonitoringConfig(pjp.getSignature().getDeclaringTypeName());
 				return configuration.isDefaultConfig() ? pjp.proceed() :
-						doProfiling(pjp, pjp.getSignature().getDeclaringTypeName(), configuration.getSubsystem(), configuration.getCategory());
+						doProfiling(pjp, EntryNameResolverType.resolve(pjp, configuration, mode), configuration.getSubsystem(), configuration.getCategory());
 			default:
 				throw new AssertionError(agentConfig.getMode() + " not supported ");
 		}
@@ -80,7 +87,8 @@ public abstract class LoadTimeMonitoringAspect extends AbstractMoskitoAspect<Ser
 		try {
 			return pjp.proceed();
 		} finally {
-			LOG.info("Entry - " + pjp.getSignature().getDeclaringType() + "." + pjp.getSignature().getName());
+			//defaults are possible
+			LOG.info("Entry - " + EntryNameResolverType.resolve(pjp, agentConfig.getMonitoringConfig(pjp.getSignature().getDeclaringTypeName()), agentConfig.getMode()));
 		}
 	}
 

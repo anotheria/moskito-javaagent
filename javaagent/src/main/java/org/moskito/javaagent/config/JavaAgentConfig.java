@@ -4,7 +4,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -57,7 +60,7 @@ public class JavaAgentConfig {
 	 * Class config inner clazzNameToConfigurationStorage.
 	 */
 	@DontConfigure
-	private volatile Map<String, MonitoringClassConfig> clazzConfig = new HashMap<>();
+	private volatile NavigableMap<String, MonitoringClassConfig> clazzConfig = new TreeMap<>();
 	/**
 	 * Classes which should be passed to weaving.
 	 */
@@ -74,7 +77,7 @@ public class JavaAgentConfig {
 	 */
 	@AfterConfiguration
 	public synchronized void init() {
-		Map<String, MonitoringClassConfig> config = new HashMap<>();
+		final NavigableMap<String, MonitoringClassConfig> config = new TreeMap<>();
 		if (monitoringClassConfig == null || monitoringClassConfig.length <= 0)
 			return;
 		for (final MonitoringClassConfig cnf : monitoringClassConfig)
@@ -82,7 +85,8 @@ public class JavaAgentConfig {
 				for (final String pattern : cnf.getPatterns())
 					if (!StringUtils.isEmpty(pattern))
 						config.put(pattern, cnf);
-		clazzConfig = config;
+		//using map in descending order, this will allow to fetch  "test.first.*" before "test.*" packages...
+		clazzConfig = config.descendingMap();
 		classesToInclude = new HashSet<>(clazzConfig.keySet());
 		clazzNameToConfigurationStorage.clear();
 	}
@@ -135,19 +139,21 @@ public class JavaAgentConfig {
 	public MonitoringClassConfig getMonitoringConfig(final String clazzName) {
 		if (clazzConfig == null || clazzConfig.isEmpty())
 			return DEFAULT_CONFIG;
-
 		final MonitoringClassConfig cached = clazzNameToConfigurationStorage.get(clazzName);
 		if (cached != null)
 			return cached;
 		MonitoringClassConfig result = DEFAULT_CONFIG;
-		for (final Map.Entry<String, MonitoringClassConfig> mcc : clazzConfig.entrySet())
-			if (patternMatch(mcc.getKey(), clazzName)) {
-				result = mcc.getValue();
-				//first found!
-				return result;
-			}
-		clazzNameToConfigurationStorage.put(clazzName, result);
-		return result;
+		try {
+			for (final Map.Entry<String, MonitoringClassConfig> mcc : clazzConfig.entrySet())
+				if (patternMatch(mcc.getKey(), clazzName)) {
+					result = mcc.getValue();
+					//first found!
+					break;
+				}
+			return result;
+		} finally {
+			clazzNameToConfigurationStorage.put(clazzName, result);
+		}
 	}
 
 	/**
@@ -224,7 +230,7 @@ public class JavaAgentConfig {
 				//CHECKSTYLE:OFF
 			} catch (final RuntimeException e) {
 				//CHECKSTYLE:ON
-				LoggerFactory.getLogger(InstanceProvider.class).error(" failed to confiugre LoadTimeMonitoringConfig, defaults used");
+				LoggerFactory.getLogger(InstanceProvider.class).error(" failed to configure LoadTimeMonitoringConfig, defaults used");
 			}
 		}
 
@@ -258,7 +264,11 @@ public class JavaAgentConfig {
 		 */
 		@DontConfigure
 		private final boolean defaultConfig;
-
+		/**
+		 * Producer name resolver type. With default init.
+		 */
+		@Configure
+		private EntryNameResolverType nameResolverType = EntryNameResolverType.ABBREVIATION;
 		/**
 		 * Constructor.
 		 */
@@ -308,8 +318,19 @@ public class JavaAgentConfig {
 			sb.append(", subsystem='").append(subsystem).append('\'');
 			sb.append(", category='").append(category).append('\'');
 			sb.append(", defaultConfig='").append(defaultConfig).append('\'');
+			sb.append(", nameResolverType='").append(nameResolverType).append('\'');
 			sb.append('}');
 			return sb.toString();
+		}
+
+		public EntryNameResolverType getNameResolverType() {
+			return nameResolverType;
+		}
+
+		public void setNameResolverType(final EntryNameResolverType nameResolverType) {
+			if (nameResolverType == null)
+				return;
+			this.nameResolverType = nameResolverType;
 		}
 	}
 

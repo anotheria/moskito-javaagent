@@ -3,6 +3,8 @@
     {
       "patterns": [
         "org.primefaces.*",
+        "org.primefaces.test.*",
+        "org.primefaces.test.second.*",
         "org.apache.commons.fileupload.FileItem"
       ],
       "subsystem": "default",
