@@ -42,7 +42,7 @@ public enum EntryNameResolverType {
 		/**
 		 * {@link Abbreviator} for class#method names compaction.
 		 */
-		private final Abbreviator nameAbbreviator= new TargetLengthBasedClassNameAbbreviator(abbreviationTargetLength);
+		private final Abbreviator nameAbbreviator = new TargetLengthBasedClassNameAbbreviator(abbreviationTargetLength);
 
 		@Override
 		public String resolveEntry(final Class<?> clazz, final String methodName, final JavaAgentConfig.WorkMode mode) {
