@@ -1,5 +1,6 @@
 package org.moskito.javaagent.config;
 
+import ch.qos.logback.classic.pattern.Abbreviator;
 import ch.qos.logback.classic.pattern.LoggerConverter;
 import ch.qos.logback.classic.pattern.TargetLengthBasedClassNameAbbreviator;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -38,6 +39,10 @@ public enum EntryNameResolverType {
 		 * Default 'abbreviationTargetLength'.
 		 */
 		private final int abbreviationTargetLength = 1;
+		/**
+		 * {@link Abbreviator} for class#method names compaction.
+		 */
+		private final Abbreviator nameAbbreviator= new TargetLengthBasedClassNameAbbreviator(abbreviationTargetLength);
 
 		@Override
 		public String resolveEntry(final Class<?> clazz, final String methodName, final JavaAgentConfig.WorkMode mode) {
@@ -46,7 +51,7 @@ public enum EntryNameResolverType {
 				LoggerFactory.getLogger(EntryNameResolverType.class).warn("Resolve entry class[" + clazz + "] , method [" + methodName + "] returned result[" + original + "]");
 				return original;
 			}
-			return new TargetLengthBasedClassNameAbbreviator(abbreviationTargetLength).abbreviate(original);
+			return nameAbbreviator.abbreviate(original);
 		}
 	};
 
