@@ -33,6 +33,16 @@ public class JavaAgentConfig {
 	@DontConfigure
 	private static final MonitoringClassConfig DEFAULT_CONFIG = new MonitoringClassConfig(true);
 	/**
+	 * Start moskito backend prop name.
+	 */
+	@DontConfigure
+	private static final String START_MOSKITO_BACKEND_PROPERTY_NAME = "startMoskitoBackend";
+	/**
+	 * Backend port property name.
+	 */
+	@DontConfigure
+	private static final String MOSKITO_BACKEND_PORT_PROPERTY_NAME = "moskitoBackendPort";
+	/**
 	 * MonitoringClassConfig configurations.
 	 */
 	@Configure
@@ -118,7 +128,7 @@ public class JavaAgentConfig {
 	}
 
 	public int getMoskitoBackendPort() {
-		return moskitoBackendPort;
+		return moskitoBackendPort == 0 ? Integer.valueOf(System.getProperty(MOSKITO_BACKEND_PORT_PROPERTY_NAME, "-1")) : moskitoBackendPort;
 	}
 
 	public void setMoskitoBackendPort(int moskitoBackendPort) {
@@ -187,7 +197,7 @@ public class JavaAgentConfig {
 	 * @return boolean value
 	 */
 	public boolean startMoskitoBacked() {
-		return startMoskitoBackend && WorkMode.PROFILING == mode;
+		return startMoskitoBackend || Boolean.valueOf(System.getProperty(START_MOSKITO_BACKEND_PROPERTY_NAME, Boolean.FALSE.toString()));
 	}
 
 	@Override
