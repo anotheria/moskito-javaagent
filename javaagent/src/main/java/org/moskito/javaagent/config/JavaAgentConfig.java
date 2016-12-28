@@ -15,6 +15,7 @@ import org.configureme.annotations.AfterConfiguration;
 import org.configureme.annotations.Configure;
 import org.configureme.annotations.ConfigureMe;
 import org.configureme.annotations.DontConfigure;
+import org.distributeme.core.conventions.SystemProperties;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -128,7 +129,22 @@ public class JavaAgentConfig {
 	}
 
 	public int getMoskitoBackendPort() {
-		return moskitoBackendPort == 0 ? Integer.valueOf(System.getProperty(MOSKITO_BACKEND_PORT_PROPERTY_NAME, "-1")) : moskitoBackendPort;
+		return moskitoBackendPort == 0 ? getBackendPortFromDefaultProperties() : moskitoBackendPort;
+	}
+
+	/**
+	 * Fetch backend port.
+	 *
+	 * @return backend port property
+	 */
+	private int getBackendPortFromDefaultProperties() {
+		try {
+			if (StringUtils.isEmpty(SystemProperties.LOCAL_RMI_REGISTRY_PORT.get()))
+				return -1;
+			return SystemProperties.LOCAL_RMI_REGISTRY_PORT.getAsInt();
+		} catch (final NumberFormatException e) {
+			return -1;
+		}
 	}
 
 	public void setMoskitoBackendPort(int moskitoBackendPort) {
