@@ -1,5 +1,6 @@
 package org.moskito.javaagent.config;
 
+import java.rmi.registry.Registry;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,6 +40,12 @@ public class JavaAgentConfig {
 	@DontConfigure
 	private static final String START_MOSKITO_BACKEND_PROPERTY_NAME = "startMoskitoBackend";
 	/**
+	 * Allow predefined by properties or  default port range to be used during {@link Registry} start.
+	 * See {@link SystemProperties} for available defaults and property names.
+	 */
+	@DontConfigure
+	private static final int PROPERTIES_PORT_RANGE_USE_DEFAULT_VALUE = -1;
+	/**
 	 * MonitoringClassConfig configurations.
 	 */
 	@Configure
@@ -58,7 +65,7 @@ public class JavaAgentConfig {
 	 * Moskito backend registry port.
 	 */
 	@Configure
-	private int moskitoBackendPort = 11000;
+	private int moskitoBackendPort = PROPERTIES_PORT_RANGE_USE_DEFAULT_VALUE;
 	/**
 	 * Class config inner clazzNameToConfigurationStorage.
 	 */
@@ -135,10 +142,12 @@ public class JavaAgentConfig {
 	private int getBackendPortFromDefaultProperties() {
 		try {
 			if (StringUtils.isEmpty(SystemProperties.LOCAL_RMI_REGISTRY_PORT.get()))
-				return -1;
+				//rely on default or configured port-range
+				return PROPERTIES_PORT_RANGE_USE_DEFAULT_VALUE;
 			return SystemProperties.LOCAL_RMI_REGISTRY_PORT.getAsInt();
 		} catch (final NumberFormatException e) {
-			return -1;
+			//rely on default or configured port-range
+			return PROPERTIES_PORT_RANGE_USE_DEFAULT_VALUE;
 		}
 	}
 
