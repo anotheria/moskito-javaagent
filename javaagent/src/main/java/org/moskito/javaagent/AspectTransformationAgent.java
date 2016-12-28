@@ -4,6 +4,7 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
 
+import org.distributeme.core.RMIRegistryUtil;
 import org.moskito.controlagent.endpoints.rmi.RMIEndpoint;
 import org.moskito.javaagent.config.JavaAgentConfig;
 import net.anotheria.moskito.webui.embedded.StartMoSKitoInspectBackendForRemote;
@@ -78,10 +79,10 @@ public class AspectTransformationAgent implements java.lang.instrument.ClassFile
 		if (CONFIGURATION.startMoskitoBacked())
 			try {
 				int moskitoBackendPort = CONFIGURATION.getMoskitoBackendPort();
-				LOG.info("Starting Moskito backend on " + moskitoBackendPort + " port! !");
+				LOG.info("Starting Moskito-backend on " + moskitoBackendPort + " port! !");
 				StartMoSKitoInspectBackendForRemote.startMoSKitoInspectBackend(moskitoBackendPort);
 				RMIEndpoint.startRMIEndpoint();
-				LOG.info("Starting Moskito backend on " + moskitoBackendPort + " port! Performed successfully!");
+				LOG.info("Started Moskito-backend on " + RMIRegistryUtil.getRmiRegistryPort() + " port!");
 			} catch (final Throwable mise) {
 				LOG.error("Failed to start moskitoInspect backend. [" + mise.getMessage() + "]", mise);
 			}

@@ -199,4 +199,10 @@
         </dependencies>
     </dependencyManagement>
 
+    <scm>
+        <url>https://github.com/anotheria/moskito-javaagent</url>
+        <connection>scm:git:git@github.com:anotheria/moskito-javaagent.git</connection>
+        <developerConnection>scm:git:git@github.com:anotheria/moskito-javaagent.git</developerConnection>
+    </scm>
+
 </project>
