@@ -39,11 +39,6 @@ public class JavaAgentConfig {
 	@DontConfigure
 	private static final String START_MOSKITO_BACKEND_PROPERTY_NAME = "startMoskitoBackend";
 	/**
-	 * Backend port property name.
-	 */
-	@DontConfigure
-	private static final String MOSKITO_BACKEND_PORT_PROPERTY_NAME = "moskitoBackendPort";
-	/**
 	 * MonitoringClassConfig configurations.
 	 */
 	@Configure
