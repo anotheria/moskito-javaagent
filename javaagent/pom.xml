@@ -51,6 +51,14 @@
                     <artifactId>javassist</artifactId>
                     <groupId>javassist</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>xercesImpl</artifactId>
+                    <groupId>xerces</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>xmlParserAPIs</artifactId>
+                    <groupId>xerces</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
