@@ -1,5 +1,6 @@
 package org.moskito.javaagent.config;
 
+import java.rmi.registry.Registry;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,6 +16,7 @@ import org.configureme.annotations.AfterConfiguration;
 import org.configureme.annotations.Configure;
 import org.configureme.annotations.ConfigureMe;
 import org.configureme.annotations.DontConfigure;
+import org.distributeme.core.conventions.SystemProperties;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -32,6 +34,17 @@ public class JavaAgentConfig {
 	 */
 	@DontConfigure
 	private static final MonitoringClassConfig DEFAULT_CONFIG = new MonitoringClassConfig(true);
+	/**
+	 * Start moskito backend prop name.
+	 */
+	@DontConfigure
+	private static final String START_MOSKITO_BACKEND_PROPERTY_NAME = "startMoskitoBackend";
+	/**
+	 * Allow predefined by properties or  default port range to be used during {@link Registry} start.
+	 * See {@link SystemProperties} for available defaults and property names.
+	 */
+	@DontConfigure
+	private static final int PROPERTIES_PORT_RANGE_USE_DEFAULT_VALUE = -1;
 	/**
 	 * MonitoringClassConfig configurations.
 	 */
@@ -52,7 +65,7 @@ public class JavaAgentConfig {
 	 * Moskito backend registry port.
 	 */
 	@Configure
-	private int moskitoBackendPort = 11000;
+	private int moskitoBackendPort = PROPERTIES_PORT_RANGE_USE_DEFAULT_VALUE;
 	/**
 	 * Class config inner clazzNameToConfigurationStorage.
 	 */
@@ -118,7 +131,24 @@ public class JavaAgentConfig {
 	}
 
 	public int getMoskitoBackendPort() {
-		return moskitoBackendPort;
+		return moskitoBackendPort == 0 ? getBackendPortFromDefaultProperties() : moskitoBackendPort;
+	}
+
+	/**
+	 * Fetch backend port.
+	 *
+	 * @return backend port property
+	 */
+	private int getBackendPortFromDefaultProperties() {
+		try {
+			if (StringUtils.isEmpty(SystemProperties.LOCAL_RMI_REGISTRY_PORT.get()))
+				//rely on default or configured port-range
+				return PROPERTIES_PORT_RANGE_USE_DEFAULT_VALUE;
+			return SystemProperties.LOCAL_RMI_REGISTRY_PORT.getAsInt();
+		} catch (final NumberFormatException e) {
+			//rely on default or configured port-range
+			return PROPERTIES_PORT_RANGE_USE_DEFAULT_VALUE;
+		}
 	}
 
 	public void setMoskitoBackendPort(int moskitoBackendPort) {
@@ -187,7 +217,7 @@ public class JavaAgentConfig {
 	 * @return boolean value
 	 */
 	public boolean startMoskitoBacked() {
-		return startMoskitoBackend && WorkMode.PROFILING == mode;
+		return startMoskitoBackend || Boolean.valueOf(System.getProperty(START_MOSKITO_BACKEND_PROPERTY_NAME, Boolean.FALSE.toString()));
 	}
 
 	@Override
