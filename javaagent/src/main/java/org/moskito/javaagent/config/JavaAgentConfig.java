@@ -1,16 +1,5 @@
 package org.moskito.javaagent.config;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 import com.google.gson.annotations.SerializedName;
 import net.anotheria.util.StringUtils;
 import org.configureme.ConfigurationManager;
@@ -19,6 +8,18 @@ import org.configureme.annotations.Configure;
 import org.configureme.annotations.ConfigureMe;
 import org.configureme.annotations.DontConfigure;
 import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.regex.Pattern;
+
+import static org.moskito.javaagent.config.JavaAgentConfig.MonitoringClassConfig.DEFAULT_CONFIG;
 
 /**
  * Created by IntelliJ IDEA.
@@ -31,31 +32,31 @@ import org.slf4j.LoggerFactory;
 @ConfigureMe (name = "moskito-javaagent-config")
 public class JavaAgentConfig {
 	/**
-	 * Default config.
+	 * Default port if no port is specified.
 	 */
 	@DontConfigure
-	private static final MonitoringClassConfig DEFAULT_CONFIG = new MonitoringClassConfig(true);
+	private static final int DEFAULT_MOSKITO_AGENT_PORT = 9411;
 	/**
 	 * MonitoringClassConfig configurations.
 	 */
 	@Configure
 	@SerializedName ("@monitoringClassConfig")
-	private MonitoringClassConfig[] monitoringClassConfig;
+	private MonitoringClassConfig[] monitoringClassConfig = {DEFAULT_CONFIG} ;
 	/**
 	 * Work mode with default init.
 	 */
 	@Configure
-	private WorkMode mode = WorkMode.LOG_ONLY;
+	private WorkMode mode = WorkMode.PROFILING;
 	/**
 	 * Allow to start moskito inspect backend.
 	 */
 	@Configure
-	private boolean startMoskitoBackend = false;
+	private boolean startMoskitoBackend = true;
 	/**
 	 * Moskito backend registry port.
 	 */
 	@Configure
-	private int moskitoBackendPort = 11000;
+	private int moskitoBackendPort = DEFAULT_MOSKITO_AGENT_PORT;
 	/**
 	 * Class config inner clazzNameToConfigurationStorage.
 	 */
@@ -78,13 +79,14 @@ public class JavaAgentConfig {
 	@AfterConfiguration
 	public synchronized void init() {
 		final NavigableMap<String, MonitoringClassConfig> config = new TreeMap<>();
-		if (monitoringClassConfig == null || monitoringClassConfig.length <= 0)
+		if (monitoringClassConfig == null || monitoringClassConfig.length == 0)
 			return;
-		for (final MonitoringClassConfig cnf : monitoringClassConfig)
-			if (cnf != null)
-				for (final String pattern : cnf.getPatterns())
-					if (!StringUtils.isEmpty(pattern))
-						config.put(pattern, cnf);
+		for (final MonitoringClassConfig cnf : monitoringClassConfig) {
+            if (cnf != null)
+                for (final String pattern : cnf.getPatterns())
+                    if (!StringUtils.isEmpty(pattern))
+                        config.put(pattern, cnf);
+        }
 		//using map in descending order, this will allow to fetch  "test.first.*" before "test.*" packages...
 		clazzConfig = config.descendingMap();
 		classesToInclude = new HashSet<>(clazzConfig.keySet());
@@ -164,12 +166,11 @@ public class JavaAgentConfig {
 	 * @return boolean
 	 */
 	public boolean shouldPerformWeaving(final String clazzName) {
-		if (StringUtils.isEmpty(clazzName))
-			return false;
-		for (final String data : classesToInclude)
-			if (clazzName.matches(data))
-				return true;
-
+		if (!StringUtils.isEmpty(clazzName)) {
+			for (final String pattern : classesToInclude)
+				if (patternMatch(pattern, clazzName))
+					return true;
+		}
 		return false;
 	}
 
@@ -184,7 +185,10 @@ public class JavaAgentConfig {
 	 * @return boolean value
 	 */
 	private static boolean patternMatch(final String pattern, final String className) {
-		return !(StringUtils.isEmpty(className) || StringUtils.isEmpty(pattern)) && className.replace("/", ".").matches(pattern);
+		if (StringUtils.isEmpty(className) || StringUtils.isEmpty(pattern))
+			return false;
+		final Pattern regex = PatternCache.getPattern(pattern);
+		return regex.matcher(StringUtils.replace(className, '/', '.')).matches();
 	}
 
 	/**
@@ -192,13 +196,13 @@ public class JavaAgentConfig {
 	 *
 	 * @return boolean value
 	 */
-	public boolean startMoskitoBacked() {
+	public boolean startMoskitoBackend() {
 		return startMoskitoBackend && WorkMode.PROFILING == mode;
 	}
 
 	@Override
 	public String toString() {
-		final StringBuffer sb = new StringBuffer("LoadTimeMonitoringConfig{");
+		final StringBuilder sb = new StringBuilder("LoadTimeMonitoringConfig{");
 		sb.append("monitoringClassConfig=").append(monitoringClassConfig == null ? "null" : Arrays.asList(monitoringClassConfig).toString());
 		sb.append(", mode=").append(mode);
 		sb.append(", startMoskitoBackend=").append(startMoskitoBackend);
@@ -230,7 +234,9 @@ public class JavaAgentConfig {
 				//CHECKSTYLE:OFF
 			} catch (final RuntimeException e) {
 				//CHECKSTYLE:ON
-				LoggerFactory.getLogger(InstanceProvider.class).error(" failed to configure LoadTimeMonitoringConfig, defaults used");
+				LoggerFactory.getLogger(InstanceProvider.class).warn(" failed to configure LoadTimeMonitoringConfig, defaults used");
+				//init defaults
+				instance.init();
 			}
 		}
 
@@ -243,7 +249,18 @@ public class JavaAgentConfig {
 	/**
 	 * Monitoring class configuration.
 	 */
+	@SuppressWarnings("unused")
 	public static class MonitoringClassConfig {
+		/**
+		 * Default config.
+		 */
+		@DontConfigure
+		static final MonitoringClassConfig DEFAULT_CONFIG = new MonitoringClassConfig();
+		static {
+			DEFAULT_CONFIG.setPatterns(new String[]{".*"});
+			DEFAULT_CONFIG.setCategory("javaagent");
+			DEFAULT_CONFIG.setSubsystem("javaagent");
+		}
 		/**
 		 * Class/package name patterns which should be tracked with given 'producer,subsystem,category'...
 		 */
@@ -347,5 +364,5 @@ public class JavaAgentConfig {
 		 */
 		PROFILING
 	}
-}
 
+}

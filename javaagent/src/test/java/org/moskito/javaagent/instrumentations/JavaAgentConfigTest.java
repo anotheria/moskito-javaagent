@@ -1,17 +1,22 @@
 package org.moskito.javaagent.instrumentations;
 
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Arrays;
-import java.util.List;
-
 import ch.qos.logback.classic.pattern.Abbreviator;
 import ch.qos.logback.classic.pattern.TargetLengthBasedClassNameAbbreviator;
+import net.anotheria.util.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.moskito.javaagent.config.JavaAgentConfig;
+
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
+
+import static org.junit.Assert.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -25,7 +30,7 @@ public class JavaAgentConfigTest {
 	@Test
 	public void shouldConfigureMoskitoConfig() throws Exception {
 		//given
-		final org.moskito.javaagent.config.JavaAgentConfig config = org.moskito.javaagent.config.JavaAgentConfig.getInstance();
+		final JavaAgentConfig config = JavaAgentConfig.getInstance();
 
 		//then
 		assertNotNull("Should not be null", config);
@@ -64,6 +69,24 @@ public class JavaAgentConfigTest {
 		}
 
 
+	}
+
+	@Test
+	public void checkGettersAndSetters() {
+		final JavaAgentConfig config = JavaAgentConfig.getInstance();
+		final int newPort = 1 + config.getMoskitoBackendPort();
+		config.setMoskitoBackendPort(newPort);
+		assertEquals(newPort, config.getMoskitoBackendPort());
+
+		for (final JavaAgentConfig.WorkMode mode : JavaAgentConfig.WorkMode.values()) {
+			config.setMode(mode);
+			assertEquals(mode, config.getMode());
+			for (final boolean startBackend : new boolean[]{true, false}) {
+				config.setStartMoskitoBackend(startBackend);
+				final boolean expectedResult = startBackend && mode == JavaAgentConfig.WorkMode.PROFILING;
+				assertEquals(expectedResult, config.startMoskitoBackend());
+			}
+		}
 	}
 
 }

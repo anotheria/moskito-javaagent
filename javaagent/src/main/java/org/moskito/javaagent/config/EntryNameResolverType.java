@@ -1,7 +1,6 @@
 package org.moskito.javaagent.config;
 
 import ch.qos.logback.classic.pattern.Abbreviator;
-import ch.qos.logback.classic.pattern.LoggerConverter;
 import ch.qos.logback.classic.pattern.TargetLengthBasedClassNameAbbreviator;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.slf4j.LoggerFactory;

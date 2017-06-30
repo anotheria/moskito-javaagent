@@ -1,22 +1,19 @@
 {
     "@monitoringClassConfig": [
         {
-            "patterns": ["test.*"],
-            "subsystem": "default",
-            "category": "web"
+            "patterns": ["net.anotheria.*"],
+            "subsystem": "javaagent",
+            "category": "javaagent",
+            "nameResolverType": "FULLY_QUALIFIED_CLASS_NAME"
         },
         {
-            "patterns": ["net.anotheria.moskitosample.*"],
+            "patterns": ["org.moskito.demo.daemon.*"],
             "subsystem": "default",
-            "category": "web"
-        },
-        {
-            "patterns": ["org.primefaces.*", "org.apache.commons.fileupload.FileItem"],
-            "subsystem": "default",
-            "category": "web"
+            "category": "demo",
+            "nameResolverType": "ABBREVIATION"
         }
     ],
     "mode": "PROFILING",
     "startMoskitoBackend": true,
-    "moskitoBackendPort": 11111
+    "moskitoBackendPort": 9411
 }

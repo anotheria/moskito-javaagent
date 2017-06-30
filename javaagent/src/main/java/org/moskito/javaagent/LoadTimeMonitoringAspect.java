@@ -37,10 +37,6 @@ public abstract class LoadTimeMonitoringAspect extends AbstractMoskitoAspect<Ser
 	private static final Logger LOG = LoggerFactory.getLogger(LoadTimeMonitoringAspect.class);
 
 	/**
-	 * Factory constant is needed to prevent continuous re-instantiation of ServiceStatsFactory objects.
-	 */
-	private static final IOnDemandStatsFactory<ServiceStats> FACTORY = ServiceStatsFactory.DEFAULT_INSTANCE;
-	/**
 	 * LoadTimeMonitoringConfig instance.
 	 */
 	private final JavaAgentConfig agentConfig = JavaAgentConfig.getInstance();
@@ -108,7 +104,7 @@ public abstract class LoadTimeMonitoringAspect extends AbstractMoskitoAspect<Ser
 	 * 		on errors
 	 */
 	private Object doProfiling(final ProceedingJoinPoint pjp, final String aProducerId, final String aSubsystem, final String aCategory) throws Throwable {
-
+		final IOnDemandStatsFactory<ServiceStats> FACTORY = ServiceStatsFactory.DEFAULT_INSTANCE;
 		final OnDemandStatsProducer<ServiceStats> producer = getProducer(pjp, aProducerId, aCategory, aSubsystem, false, FACTORY, false);
 
 		final String producerId = producer.getProducerId();

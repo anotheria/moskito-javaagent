@@ -12,12 +12,6 @@
     <version>1.0.0-SNAPSHOT</version>
     <name>integration-scenario-test</name>
 
-    <properties>
-        <moskito.version>2.7.6-SNAPSHOT</moskito.version>
-        <slf4j.version>1.7.16</slf4j.version>
-        <logback-classic.version>1.1.5</logback-classic.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -40,8 +34,8 @@
                     <groupId>org.slf4j</groupId>
                 </exclusion>
             </exclusions>
-
         </dependency>
+
         <dependency>
             <groupId>net.anotheria</groupId>
             <artifactId>moskito-webui</artifactId>
@@ -56,9 +50,18 @@
                     <groupId>net.anotheria</groupId>
                 </exclusion>
             </exclusions>
-
         </dependency>
 
+        <dependency>
+            <groupId>org.moskito</groupId>
+            <artifactId>moskito-control-agent-rmi-endpoint</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
         <dependency>
             <groupId>net.anotheria</groupId>

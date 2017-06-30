@@ -4,6 +4,8 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
 
+import org.distributeme.core.RMIRegistryUtil;
+import org.moskito.controlagent.endpoints.rmi.RMIEndpoint;
 import org.moskito.javaagent.config.JavaAgentConfig;
 import net.anotheria.moskito.webui.embedded.StartMoSKitoInspectBackendForRemote;
 import org.aspectj.weaver.loadtime.ClassPreProcessorAgentAdapter;
@@ -29,7 +31,10 @@ public class AspectTransformationAgent implements java.lang.instrument.ClassFile
 	 * {@link JavaAgentConfig} instance.
 	 */
 	private static final JavaAgentConfig CONFIGURATION = JavaAgentConfig.getInstance();
-
+	/**
+	 * Name of the property for the moskito agent port.
+	 */
+	private static final String PROPERTY_MOSKITO_AGENT_PORT = "moskitoAgentPort";
 
 	/**
 	 * JVM hook to statically load the javaagent at startup.
@@ -43,10 +48,7 @@ public class AspectTransformationAgent implements java.lang.instrument.ClassFile
 	 * 		{@link Instrumentation}
 	 */
 	public static void premain(String args, Instrumentation inst) {
-		LOG.info("premain method invoked with args: {} and inst: {}", args, inst);
-		AspectTransformationAgent aspectTransformationAgent = new AspectTransformationAgent();
-		inst.addTransformer(aspectTransformationAgent);
-		startMoskitoBackend();
+		loadMoskitoJavaAgent("premain", args, inst);
 	}
 
 
@@ -60,10 +62,13 @@ public class AspectTransformationAgent implements java.lang.instrument.ClassFile
 	 * 		arguments
 	 * @param inst
 	 * 		{@link Instrumentation} instance
-	 * @throws Exception
 	 */
-	public static void agentmain(String args, Instrumentation inst) throws Exception {
-		LOG.info("agentmain method invoked with args: {} and inst: {}", args, inst);
+	public static void agentmain(String args, Instrumentation inst) {
+		loadMoskitoJavaAgent("agentmain", args, inst);
+	}
+
+	private static void loadMoskitoJavaAgent(String loadMethod, String args, Instrumentation inst) {
+		LOG.info("{} method invoked with args: {} and inst: {}", loadMethod, args, inst);
 		inst.addTransformer(new AspectTransformationAgent());
 		startMoskitoBackend();
 	}
@@ -73,17 +78,35 @@ public class AspectTransformationAgent implements java.lang.instrument.ClassFile
 	 *
 	 */
 	private static void startMoskitoBackend() {
-
-		if (CONFIGURATION.startMoskitoBacked())
+		if (CONFIGURATION.startMoskitoBackend()) {
 			try {
-				LOG.info("Starting Moskito backend on " + CONFIGURATION.getMoskitoBackendPort() + " port! !");
-				StartMoSKitoInspectBackendForRemote.startMoSKitoInspectBackend(CONFIGURATION.getMoskitoBackendPort());
-				LOG.info("Starting Moskito backend on " + CONFIGURATION.getMoskitoBackendPort() + " port! Performed successfully!");
+				final int moskitoBackendPort = getBackendPort();
+				LOG.info("Starting Moskito-backend on " + moskitoBackendPort + " port!");
+				StartMoSKitoInspectBackendForRemote.startMoSKitoInspectBackend(moskitoBackendPort);
+				RMIEndpoint.startRMIEndpoint();
+				LOG.info("Started Moskito-backend on " + RMIRegistryUtil.getRmiRegistryPort() + " port!");
 			} catch (final Throwable mise) {
 				LOG.error("Failed to start moskitoInspect backend. [" + mise.getMessage() + "]", mise);
 			}
+		} else {
+			LOG.info("Not starting Moskito-backend! Configuration: " + CONFIGURATION);
+		}
 	}
 
+	/**
+	 * Fetch backend port.
+	 *
+	 * @return backend port property
+	 */
+	private static int getBackendPort() {
+		final String agentPort = System.getProperty(PROPERTY_MOSKITO_AGENT_PORT, "" + CONFIGURATION.getMoskitoBackendPort());
+		try {
+			return Integer.parseInt(agentPort);
+		} catch (final NumberFormatException e) {
+			LOG.error("Can't parse moskito agent port, will not start at '" + agentPort + "'!");
+			throw new AssertionError("Can't parse moskito agent port, will not start " + agentPort);
+		}
+	}
 
 	@Override
 	public byte[] transform(final ClassLoader loader, final String className, Class<?> classBeingRedefined, final ProtectionDomain protectionDomain, final byte[] classfileBuffer) throws IllegalClassFormatException {
@@ -91,7 +114,5 @@ public class AspectTransformationAgent implements java.lang.instrument.ClassFile
 			return classfileBuffer;
 		return classPreProcessorAgentAdapter.transform(loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
 	}
-
-
 
 }

@@ -13,7 +13,6 @@
     <version>1.0.0-SNAPSHOT</version>
     <name>javaagent</name>
 
-
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -23,37 +22,51 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
         </dependency>
-
         <dependency>
             <groupId>net.anotheria</groupId>
             <artifactId>moskito-aop</artifactId>
             <exclusions>
                 <exclusion>
-                    <artifactId>slf4j-api</artifactId>
                     <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
                 </exclusion>
             </exclusions>
-
         </dependency>
         <dependency>
             <groupId>net.anotheria</groupId>
             <artifactId>moskito-webui</artifactId>
             <exclusions>
                 <exclusion>
-                    <artifactId>slf4j-api</artifactId>
                     <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>net.anotheria</groupId>
                     <artifactId>moskito-web</artifactId>
-                    <groupId>net.anotheria</groupId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>javassist</artifactId>
                     <groupId>javassist</groupId>
+                    <artifactId>javassist</artifactId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>ano-tags</artifactId>
+                    <groupId>xerces</groupId>
+                    <artifactId>xercesImpl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>xerces</groupId>
+                    <artifactId>xmlParserAPIs</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>net.anotheria</groupId>
+                    <artifactId>ano-tags</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.xeiam.xchart</groupId>
+                    <artifactId>xchart</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>jstl</groupId>
+                    <artifactId>jstl</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -72,24 +85,20 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-all</artifactId>
-            <version>4.1</version>
-            <scope>test</scope>
+            <groupId>org.moskito</groupId>
+            <artifactId>moskito-control-agent-rmi-endpoint</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
-        <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjrt</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
         </dependency>
-
-
     </dependencies>
-
 
     <build>
         <plugins>
@@ -171,13 +180,15 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/appdata</outputDirectory>
+                            <outputDirectory>${project.build.outputDirectory}/appdata</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>${basedir}/src/main/resources</directory>
                                     <includes>
                                         <include>*.*</include>
                                     </includes>
+                                    <exclude>aop.xml</exclude>
+                                    <exclude>logback.xml</exclude>
                                 </resource>
                             </resources>
                         </configuration>
@@ -203,12 +214,11 @@
                                         <exclude>aop.xml</exclude>
                                         <!-- exclude m-k static resources-->
                                         <exclude>moskito/**</exclude>
-                                        <!-- exclude logback - as it wil be provided from appdata/-->
-                                        <exclude>**/logback.xml</exclude>
                                         <exclude>**/web-fragment.xml</exclude>
                                         <exclude>**/*.tld</exclude>
-                                        <!-- exclude all configurations - as it wil be provided from appdata/-->
-                                        <exclude>**/*.json</exclude>
+                                        <!-- exclude all configurations - as they will be provided from appdata/-->
+                                        <exclude>*.json</exclude>
+                                        <exclude>**/*.jsp</exclude>
                                     </excludes>
                                 </filter>
                             </filters>
@@ -217,6 +227,7 @@
                                     <manifestEntries>
                                         <Premain-Class>org.moskito.javaagent.AspectTransformationAgent</Premain-Class>
                                         <Agent-Class>org.moskito.javaagent.AspectTransformationAgent</Agent-Class>
+                                        <!--<Boot-Class-Path>appdata/ aspectjweaver-1.8.9.jar</Boot-Class-Path>-->
                                         <Boot-Class-Path>appdata/</Boot-Class-Path>
                                         <Can-Redefine-Classes>true</Can-Redefine-Classes>
                                         <Can-Retransform-Classes>true</Can-Retransform-Classes>

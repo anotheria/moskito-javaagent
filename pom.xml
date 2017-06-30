@@ -22,11 +22,11 @@
 
     <properties>
         <jersey-version>1.17</jersey-version>
-        <moskito.version>2.7.6-SNAPSHOT</moskito.version>
+        <moskito.version>2.8.2</moskito.version>
+        <moskito.control.agent.rmi.endpoint.version>1.1.2-SNAPSHOT</moskito.control.agent.rmi.endpoint.version>
         <slf4j.version>1.7.16</slf4j.version>
         <logback-classic.version>1.1.5</logback-classic.version>
         <aspect-j-version>1.8.9</aspect-j-version>
-
     </properties>
 
     <dependencyManagement>
@@ -51,6 +51,10 @@
                         <artifactId>slf4j-api</artifactId>
                         <groupId>org.slf4j</groupId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.aspectj</groupId>
+                        <artifactId>aspectjrt</artifactId>
+                    </exclusion>
                 </exclusions>
 
             </dependency>
@@ -64,9 +68,19 @@
                         <groupId>org.slf4j</groupId>
                     </exclusion>
                 </exclusions>
-
             </dependency>
 
+            <dependency>
+                <groupId>org.moskito</groupId>
+                <artifactId>moskito-control-agent-rmi-endpoint</artifactId>
+                <version>${moskito.control.agent.rmi.endpoint.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>slf4j-api</artifactId>
+                        <groupId>org.slf4j</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
 
             <dependency>
                 <groupId>net.anotheria</groupId>
@@ -138,16 +152,6 @@
             </dependency>
             <dependency>
                 <groupId>org.aspectj</groupId>
-                <artifactId>aspectjrt</artifactId>
-                <version>${aspect-j-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.aspectj</groupId>
-                <artifactId>aspectjtools</artifactId>
-                <version>${aspect-j-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.aspectj</groupId>
                 <artifactId>aspectjweaver</artifactId>
                 <version>${aspect-j-version}</version>
             </dependency>
@@ -186,5 +190,11 @@
 
         </dependencies>
     </dependencyManagement>
+
+    <scm>
+        <url>https://github.com/anotheria/moskito-javaagent</url>
+        <connection>scm:git:git@github.com:anotheria/moskito-javaagent.git</connection>
+        <developerConnection>scm:git:git@github.com:anotheria/moskito-javaagent.git</developerConnection>
+    </scm>
 
 </project>
