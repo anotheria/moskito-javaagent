@@ -9,16 +9,20 @@ moskito-javaagent
   a). Get javaagent-1.0.0-SNAPSHOT.jar  artifact from {javaagent-home}/target - directory  and   put it to  some location
   b). Get {javaagent-home}/target/appdata  directory to same location ( provides all required configurations and will be used as bootPath for agent)
 
-### 2) Add  moskito javaagent to your app, as  java-agent
+### 2) Add  moskito javaagent to your app, as  java-agent, and provide applications packages to be monitored.
    	as example:
 			export JAVA_OPTS=" $JAVA_OPTS -javaagent:/[full   path]/javaagent/target/javaagent-1.0.0-SNAPSHOT.jar"
+			export JAVA_OPTS=" $JAVA_OPTS export JAVA_OPTS="$JAVA_OPTS -DapplicationPackages=com.test,com.anothertest"
 
+  By default following classes are monitored: \*DAO\*, \*Repository\*, \*Service\*, \*Manager\*, \*Controller\*.
 
-### 3) Configuring moskito-javaagent-config.json
+### 3) Now you can run your application, jump to step 6 and check what is going on.
+
+### 4) Configuring moskito-javaagent-config.json.
 This configuration allows to pre-select working mode (PROFILING / LOG_ONLY)  — in log only mode all   class/methods  will be simply dumped into  info - log
 in PROFILING mode - core  moskito functionality will  take a part.
 
-a) Add monitoring sections ( Patterns  defines classes which will be weaver ( wrapped into monitoring aspect ))!
+a) Add monitoring sections @monitoringClassConfig ( Patterns  defines classes which will be weaver ( wrapped into monitoring aspect ))!
 ```json
         {
            "patterns": ["com.test.*"],
@@ -26,14 +30,19 @@ a) Add monitoring sections ( Patterns  defines classes which will be weaver ( wr
            "category": "foo-bar"
         }
 ```
-
-(in logs & in scope of producers UI view  You will see "com.test.Foo" and ,"com.test.Bar" entries…… )
-
-b)	In case if you want to connect  from  MoSKito Inspect - select   port  - 11111 - default and  enable  it  using  properties.
+b) Extend default monitoring classes @monitoringDefaultClassConfig ( Patterns  defines classes which will be weaver by default ( wrapped into monitoring aspect ))!
+```json
+        {
+           "patterns": [".*Service.*"],
+           "subsystem": "default",
+           "category": "service"
+        }
+```
+c)	In case if you want to connect  from  MoSKito Inspect - select   port  - 9451 - default and  enable  it  using  properties.
 > 			 "startMoskitoBackend": true,
->  			 "moskitoBackendPort": 11111
+>  			 "moskitoBackendPort": 9451
 
-### 4) Logging configuration changes.
+### 5) Logging configuration changes.
 
 [moskito-aspect-config.json]  allow to provide  other   logger names.  By default  loggers will be - MoskitoDefault ( see logback.xml),
  Moskito1m, Moskito1h - etc….
@@ -59,10 +68,10 @@ like :
 
 In app data - defaults for logging specified in logback.xml. In case If you want to rename  some moskito loggers.
 
-### 5) Connection from inspect moskito application with UI.
+### 6) Connection from inspect moskito application with UI.
 * Run MoSKito inspect application.
 * Navigate to producer section.
-* Provide host (localhost for local connections), port ( those  which was configured in section 2.b ("moskitoBackendPort").
+* Provide host (localhost for local connections), port (default 9451 or those which was configured in section 4.c ("moskitoBackendPort").
 * Connect - and find your producers.
 
 Enjoy…
