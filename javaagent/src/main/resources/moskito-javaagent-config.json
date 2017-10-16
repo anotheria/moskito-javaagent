@@ -1,4 +1,32 @@
 {
+    "@monitoringDefaultClassConfig":[
+        {
+            "patterns": [".*DAO.*"],
+            "subsystem": "default",
+            "category": "dao"
+        },
+        {
+            "patterns": [".*Repository.*"],
+            "subsystem": "default",
+            "category": "repo"
+        },
+        {
+            "patterns": [".*Service.*"],
+            "subsystem": "default",
+            "category": "service"
+        },
+        {
+            "patterns": [".*Manager.*"],
+            "subsystem": "default",
+            "category": "api"
+        },
+        {
+            "patterns": [".*Controller.*"],
+            "subsystem": "default",
+            "category": "web"
+        }
+
+    ],
     "@monitoringClassConfig": [
         {
             "patterns": ["test.*"],
@@ -18,5 +46,5 @@
     ],
     "mode": "PROFILING",
     "startMoskitoBackend": true,
-    "moskitoBackendPort": 11111
+    "moskitoBackendPort": 9451
 }

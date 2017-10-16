@@ -25,19 +25,38 @@ import org.slf4j.LoggerFactory;
  *         Time: 11:56 AM
  *         To change this template use File | Settings | File Templates.
  */
-@ConfigureMe (name = "moskito-javaagent-config")
+@ConfigureMe(name = "moskito-javaagent-config")
 public class JavaAgentConfig {
+	/**
+	 * App packages property.
+	 */
+	@DontConfigure
+	private static final String APP_PACKAGES_PROPERTY = "applicationPackages";
 	/**
 	 * Default config.
 	 */
 	@DontConfigure
 	private static final MonitoringClassConfig DEFAULT_CONFIG = new MonitoringClassConfig(true);
+
+	/**
+	 * MonitoringDefaultClassConfig configurations.
+	 */
+	@Configure
+	@SerializedName("@monitoringDefaultClassConfig")
+	private MonitoringClassConfig[] monitoringDefaultClassConfig;
+
 	/**
 	 * MonitoringClassConfig configurations.
 	 */
 	@Configure
-	@SerializedName ("@monitoringClassConfig")
+	@SerializedName("@monitoringClassConfig")
 	private MonitoringClassConfig[] monitoringClassConfig;
+
+	/**
+	 * Classes to be monitored, contains default and configured.
+	 */
+	@DontConfigure
+	private MonitoringClassConfig[] monitoredClasses;
 	/**
 	 * Work mode with default init.
 	 */
@@ -52,7 +71,7 @@ public class JavaAgentConfig {
 	 * Moskito backend registry port.
 	 */
 	@Configure
-	private int moskitoBackendPort = 11000;
+	private int moskitoBackendPort = 9450;
 	/**
 	 * Class config inner clazzNameToConfigurationStorage.
 	 */
@@ -75,9 +94,11 @@ public class JavaAgentConfig {
 	@AfterConfiguration
 	public synchronized void init() {
 		Map<String, MonitoringClassConfig> config = new HashMap<>();
-		if (monitoringClassConfig == null || monitoringClassConfig.length <= 0)
+		initDefaultMonitoredClasses();
+		copyConfiguredMonitoredClasses();
+		if (monitoredClasses.length < 1)
 			return;
-		for (final MonitoringClassConfig cnf : monitoringClassConfig)
+		for (final MonitoringClassConfig cnf : monitoredClasses)
 			if (cnf != null)
 				for (final String pattern : cnf.getPatterns())
 					if (!StringUtils.isEmpty(pattern))
@@ -85,6 +106,51 @@ public class JavaAgentConfig {
 		clazzConfig = config;
 		classesToInclude = new HashSet<>(clazzConfig.keySet());
 		clazzNameToConfigurationStorage.clear();
+	}
+
+	/**
+	 * Init default monitored classes.
+	 */
+	private void initDefaultMonitoredClasses() {
+		String appPackages = System.getProperty(APP_PACKAGES_PROPERTY);
+		if (StringUtils.isEmpty(appPackages) || monitoringDefaultClassConfig == null || monitoringDefaultClassConfig.length < 1){
+			monitoredClasses = new MonitoringClassConfig[0];
+			return;
+		}
+		String[] splitted = appPackages.split(",");
+		monitoredClasses = new MonitoringClassConfig[splitted.length * monitoringDefaultClassConfig.length];
+		int i = 0;
+		for (String appPackage : splitted)
+			for (MonitoringClassConfig classNamePatternConfig : monitoringDefaultClassConfig) {
+				String[] patterns = getDefaultPackagePatterns(appPackage, classNamePatternConfig.getPatterns());
+				monitoredClasses[i] = createMonitoringClassConfig(classNamePatternConfig.getSubsystem(), classNamePatternConfig.getCategory(), patterns);
+				i++;
+			}
+	}
+
+	/**
+	 * Get default package patterns to be monitored.
+	 */
+	private String[] getDefaultPackagePatterns(String appPackage, String[] classNamePatterns) {
+		String[] patterns = new String[classNamePatterns.length];
+		int i = 0;
+		for (String pattern: classNamePatterns){
+			patterns[i] = appPackage + pattern;
+			i++;
+		}
+		return patterns;
+	}
+
+	/**
+	 * Copy configured monitored classes.
+	 */
+	private void copyConfiguredMonitoredClasses() {
+		if (monitoringClassConfig == null || monitoringClassConfig.length < 1)
+			return;
+		MonitoringClassConfig[] oldMonitoredClass = monitoredClasses;
+		monitoredClasses = new MonitoringClassConfig[oldMonitoredClass.length + monitoringClassConfig.length];
+		System.arraycopy(oldMonitoredClass, 0, monitoredClasses, 0, oldMonitoredClass.length);
+		System.arraycopy(monitoringClassConfig, 0, monitoredClasses, oldMonitoredClass.length, monitoringClassConfig.length);
 	}
 
 	/**
@@ -125,11 +191,18 @@ public class JavaAgentConfig {
 		this.moskitoBackendPort = moskitoBackendPort;
 	}
 
+	public MonitoringClassConfig[] getMonitoringDefaultClassConfig() {
+		return monitoringDefaultClassConfig;
+	}
+
+	public void setMonitoringDefaultClassConfig(MonitoringClassConfig[] monitoringDefaultClassConfig) {
+		this.monitoringDefaultClassConfig = monitoringDefaultClassConfig;
+	}
+
 	/**
 	 * Resolve {@link MonitoringClassConfig } for incoming type name.
 	 *
-	 * @param clazzName
-	 * 		type name
+	 * @param clazzName type name
 	 * @return {@link MonitoringClassConfig}
 	 */
 	public MonitoringClassConfig getMonitoringConfig(final String clazzName) {
@@ -153,8 +226,7 @@ public class JavaAgentConfig {
 	/**
 	 * Return {@code true} in case if weaving should be performed, {@code false} otherwise.
 	 *
-	 * @param clazzName
-	 * 		name of the class
+	 * @param clazzName name of the class
 	 * @return boolean
 	 */
 	public boolean shouldPerformWeaving(final String clazzName) {
@@ -171,10 +243,8 @@ public class JavaAgentConfig {
 	/**
 	 * Return {@code true} in case if class name matches pattern, {@code false} otherwise.
 	 *
-	 * @param pattern
-	 * 		configured monitoring class pattern
-	 * @param className
-	 * 		name of the class
+	 * @param pattern   configured monitoring class pattern
+	 * @param className name of the class
 	 * @return boolean value
 	 */
 	private static boolean patternMatch(final String pattern, final String className) {
@@ -193,7 +263,8 @@ public class JavaAgentConfig {
 	@Override
 	public String toString() {
 		final StringBuffer sb = new StringBuffer("LoadTimeMonitoringConfig{");
-		sb.append("monitoringClassConfig=").append(monitoringClassConfig == null ? "null" : Arrays.asList(monitoringClassConfig).toString());
+		sb.append("monitoringDefaultClassConfig=").append(monitoringDefaultClassConfig == null ? "null" : Arrays.asList(monitoringDefaultClassConfig).toString());
+		sb.append(", monitoringClassConfig=").append(monitoringClassConfig == null ? "null" : Arrays.asList(monitoringClassConfig).toString());
 		sb.append(", mode=").append(mode);
 		sb.append(", startMoskitoBackend=").append(startMoskitoBackend);
 		sb.append(", moskitoBackendPort=").append(moskitoBackendPort);
@@ -311,6 +382,22 @@ public class JavaAgentConfig {
 			sb.append('}');
 			return sb.toString();
 		}
+	}
+
+	/**
+	 * Creates MonitoringClassConfig.
+	 *
+	 * @param subsystem subsystem
+	 * @param category  category
+	 * @param patterns  patterns
+	 * @return MonitoringClassConfig instance
+	 */
+	private MonitoringClassConfig createMonitoringClassConfig(String subsystem, String category, String[] patterns) {
+		MonitoringClassConfig config = new MonitoringClassConfig();
+		config.setSubsystem(subsystem);
+		config.setCategory(category);
+		config.setPatterns(patterns);
+		return config;
 	}
 
 	/**

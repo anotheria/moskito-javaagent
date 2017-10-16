@@ -51,6 +51,14 @@
                     <artifactId>javassist</artifactId>
                     <groupId>javassist</groupId>
                 </exclusion>
+                <exclusion>
+                    <groupId>xerces</groupId>
+                    <artifactId>xercesImpl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>jstl</groupId>
+                    <artifactId>jstl</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
