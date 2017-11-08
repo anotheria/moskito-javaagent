@@ -63,6 +63,10 @@
         </dependency>
         <dependency>
             <groupId>net.anotheria</groupId>
+            <artifactId>moskito-sql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.anotheria</groupId>
             <artifactId>configureme</artifactId>
             <exclusions>
                 <exclusion>
