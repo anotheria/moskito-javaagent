@@ -66,6 +66,11 @@
                 </exclusions>
 
             </dependency>
+            <dependency>
+                <groupId>net.anotheria</groupId>
+                <artifactId>moskito-sql</artifactId>
+                <version>${moskito.version}</version>
+            </dependency>
 
 
             <dependency>
