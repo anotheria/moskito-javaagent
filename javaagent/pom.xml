@@ -15,6 +15,19 @@
 
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.moskito</groupId>
+            <artifactId>moskito-control-agent-rmi-endpoint</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
+            <version>1.2.0</version>
+        </dependency>
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -94,7 +107,6 @@
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
         </dependency>
-
 
     </dependencies>
 
