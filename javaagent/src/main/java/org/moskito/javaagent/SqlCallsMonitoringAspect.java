@@ -37,15 +37,20 @@ public abstract class SqlCallsMonitoringAspect {
 	 * Query failed.
 	 */
 	private static final String SQL_QUERY_FAILED = " FAILED!!! ";
+
 	/**
-	 * Empty string .
+	 * Empty string.
 	 */
 	private static final String EMPTY = "";
 
 	/**
-	 * Empty string .
+	 * Colon.
 	 */
-	private static final String SPACE = " ";
+	private static final String COLON = ":";
+	/**
+	 * Sql call entry.
+	 */
+	private static final String SQL_CALL_ENTRY = "SQL Call Entry - ";
 
 	/**
 	 * Query stats producer.
@@ -91,8 +96,8 @@ public abstract class SqlCallsMonitoringAspect {
 
 	@Around(value = "monitoredPreparedStatementMethods()", argNames = "pjp")
 	public Object doProfilingMethod(final ProceedingJoinPoint pjp) throws Throwable {
-		String prepatedStatement = pjp.getTarget().toString();
-		String statement = prepatedStatement.substring(prepatedStatement.indexOf(SPACE) + 1);
+		String preparedStatement = pjp.getTarget().toString();
+		String statement = preparedStatement.substring(preparedStatement.indexOf(COLON) + 2);
 		return doProfiling(pjp, statement);
 	}
 
@@ -126,7 +131,7 @@ public abstract class SqlCallsMonitoringAspect {
 		try {
 			return pjp.proceed();
 		} finally {
-			LOG.info("SQL Call Entry - " + statement);
+			LOG.info(SQL_CALL_ENTRY + statement);
 		}
 	}
 
@@ -139,9 +144,11 @@ public abstract class SqlCallsMonitoringAspect {
 	 * @throws Throwable on errors
 	 */
 	public Object doMoskitoProfiling(ProceedingJoinPoint pjp, String statement) throws Throwable {
+		String statementGeneralized = statement.replaceAll("'.+?'","?").replaceAll(",\\s*\\d+", ", ?")
+										.replaceAll("\\(\\s*\\d+", "(?").replaceAll("=\\s*\\d+", "=?");
 		long callTime = System.nanoTime();
 		QueryStats cumulatedStats = producer.getDefaultStats();
-		QueryStats statementStats = producer.getStats(statement);
+		QueryStats statementStats = producer.getStats(statementGeneralized);
 		//add Request Count, increase CR,MCR
 		cumulatedStats.addRequest();
 		if (statementStats != null)
