@@ -44,7 +44,7 @@
             "category": "web"
         }
     ],
-    "weavingClassConfig": ["test.sql.*"],
+    "weavingClassConfig": ["org.hibernate.*"],
     "mode": "PROFILING",
     "startMoskitoBackend": true,
     "moskitoBackendPort": 9451
