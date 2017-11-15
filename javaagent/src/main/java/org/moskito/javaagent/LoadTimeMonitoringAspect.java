@@ -54,13 +54,15 @@ public abstract class LoadTimeMonitoringAspect extends AbstractMoskitoAspect<Ser
 
 	@Around (value = "monitoredMethod()")
 	public Object doProfilingMethod(final ProceedingJoinPoint pjp) throws Throwable {
+		final MonitoringClassConfig configuration = agentConfig.getMonitoringConfig(pjp.getSignature().getDeclaringTypeName());
+		if (configuration.isDefaultConfig()) {
+			return pjp.proceed();
+		}
 		switch (agentConfig.getMode()) {
 			case LOG_ONLY:
 				return log(pjp);
 			case PROFILING:
-				final MonitoringClassConfig configuration = agentConfig.getMonitoringConfig(pjp.getSignature().getDeclaringTypeName());
-				return configuration.isDefaultConfig() ? pjp.proceed() :
-						doProfiling(pjp, pjp.getSignature().getDeclaringType().getSimpleName(), configuration.getSubsystem(), configuration.getCategory());
+				return doProfiling(pjp, pjp.getSignature().getDeclaringType().getSimpleName(), configuration.getSubsystem(), configuration.getCategory());
 			default:
 				throw new AssertionError(agentConfig.getMode() + " not supported ");
 		}

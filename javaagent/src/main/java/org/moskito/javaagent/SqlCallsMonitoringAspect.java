@@ -37,10 +37,20 @@ public abstract class SqlCallsMonitoringAspect {
 	 * Query failed.
 	 */
 	private static final String SQL_QUERY_FAILED = " FAILED!!! ";
+
 	/**
-	 * Empty string .
+	 * Empty string.
 	 */
 	private static final String EMPTY = "";
+
+	/**
+	 * Colon.
+	 */
+	private static final String COLON = ":";
+	/**
+	 * Sql call entry.
+	 */
+	private static final String SQL_CALL_ENTRY = "SQL Call Entry - ";
 
 	/**
 	 * Query stats producer.
@@ -58,8 +68,14 @@ public abstract class SqlCallsMonitoringAspect {
 	 * Expression will be provided to some generated @Aspect via 'aop.xml'.
 	 */
 	@Pointcut()
-	void monitoredMethod() {
-	}
+	abstract void monitoredStatementMethods();
+
+	/**
+	 * Abstract pointcut: no expression is defined.
+	 * Expression will be provided to some generated @Aspect via 'aop.xml'.
+	 */
+	@Pointcut()
+	abstract void monitoredPreparedStatementMethods();
 
 	/**
 	 * Pointcut to get argument which is sql statement.
@@ -68,17 +84,37 @@ public abstract class SqlCallsMonitoringAspect {
 	void monitoredArg(String statement) {
 	}
 
-	@Pointcut("monitoredMethod() && monitoredArg(statement)")
+	@Pointcut("monitoredStatementMethods() && monitoredArg(statement)")
 	void monitoredMethodWithArg(String statement) {
 	}
 
 	@Around(value = "monitoredMethodWithArg(statement)", argNames = "pjp,statement")
 	public Object doProfilingMethod(final ProceedingJoinPoint pjp, final String statement) throws Throwable {
+		return doProfiling(pjp, statement);
+	}
+
+
+	@Around(value = "monitoredPreparedStatementMethods()", argNames = "pjp")
+	public Object doProfilingMethod(final ProceedingJoinPoint pjp) throws Throwable {
+		String preparedStatement = pjp.getTarget().toString();
+		String statement = preparedStatement.substring(preparedStatement.indexOf(COLON) + 2);
+		return doProfiling(pjp, statement);
+	}
+
+	/**
+	 * Perform profiling.
+	 *
+	 * @param pjp       {@link ProceedingJoinPoint}
+	 * @param statement sql statement
+	 * @return invocation result - both with profiling
+	 * @throws Throwable on errors
+	 */
+	private Object doProfiling(final ProceedingJoinPoint pjp, final String statement) throws Throwable {
 		switch (agentConfig.getMode()) {
 			case LOG_ONLY:
 				return log(pjp, statement);
 			case PROFILING:
-				return doProfiling(pjp, statement);
+				return doMoskitoProfiling(pjp, statement);
 			default:
 				throw new AssertionError(agentConfig.getMode() + " not supported ");
 		}
@@ -95,7 +131,7 @@ public abstract class SqlCallsMonitoringAspect {
 		try {
 			return pjp.proceed();
 		} finally {
-			LOG.info("SQL Call Entry - " + statement);
+			LOG.info(SQL_CALL_ENTRY + statement);
 		}
 	}
 
@@ -107,10 +143,12 @@ public abstract class SqlCallsMonitoringAspect {
 	 * @return invocation result - both with profiling
 	 * @throws Throwable on errors
 	 */
-	public Object doProfiling(ProceedingJoinPoint pjp, String statement) throws Throwable {
+	public Object doMoskitoProfiling(ProceedingJoinPoint pjp, String statement) throws Throwable {
+		String statementGeneralized = statement.replaceAll("'.+?'","?").replaceAll(",\\s*\\d+", ", ?")
+										.replaceAll("\\(\\s*\\d+", "(?").replaceAll("=\\s*\\d+", "=?");
 		long callTime = System.nanoTime();
 		QueryStats cumulatedStats = producer.getDefaultStats();
-		QueryStats statementStats = producer.getStats(statement);
+		QueryStats statementStats = producer.getStats(statementGeneralized);
 		//add Request Count, increase CR,MCR
 		cumulatedStats.addRequest();
 		if (statementStats != null)

@@ -44,6 +44,7 @@
             "category": "web"
         }
     ],
+    "weavingClassConfig": ["org.hibernate.*"],
     "mode": "PROFILING",
     "startMoskitoBackend": true,
     "moskitoBackendPort": 9451
