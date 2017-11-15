@@ -10,9 +10,10 @@ moskito-javaagent
   b). Get {javaagent-home}/target/appdata  directory to same location ( provides all required configurations and will be used as bootPath for agent)
 
 ### 2) Add  moskito javaagent to your app, as  java-agent, and provide applications packages to be monitored.
-   	as example:
-			export JAVA_OPTS=" $JAVA_OPTS -javaagent:/[full   path]/javaagent/target/javaagent-1.0.0-SNAPSHOT.jar"
-			export JAVA_OPTS=" $JAVA_OPTS export JAVA_OPTS="$JAVA_OPTS -DapplicationPackages=com.test,com.anothertest"
+   as example:   	
+   	   
+		export JAVA_OPTS=" $JAVA_OPTS -javaagent:/[full   path]/javaagent/target/javaagent-1.0.0-SNAPSHOT.jar"
+		export JAVA_OPTS=" $JAVA_OPTS export JAVA_OPTS="$JAVA_OPTS -DapplicationPackages=com.test,com.anothertest"
 
   By default following classes are monitored: \*DAO\*, \*Repository\*, \*Service\*, \*Manager\*, \*Controller\*.
 
@@ -45,7 +46,7 @@ c)	In case you want to connect  from  MoSKito Inspect - select   port  - 9451 - 
 ```
    or system property:   
     
-			export JAVA_OPTS=" $JAVA_OPTS -DmoskitoAgentPort=9451"
+		export JAVA_OPTS=" $JAVA_OPTS -DmoskitoAgentPort=9451"
     
 ### 5) Logging configuration changes.
 
@@ -58,17 +59,17 @@ NOTE :
 					"@loggers": [],  -  allow to   create  intervalName - logger name mapping
 like :
 ```json
-{
-   "@intervalLogger": {
-     "defaultMoskitoLoggerName": "",
-     "@loggers": [
-		{
- 			"intervalName" : "1s",
-			"loggerName" : "MoskitoOneSecondIntervalLogger"
-		}],
-     "attachDefaultStatLoggers": true
-   }
-}
+        {
+           "@intervalLogger": {
+             "defaultMoskitoLoggerName": "",
+             "@loggers": [
+                {
+                    "intervalName" : "1s",
+                    "loggerName" : "MoskitoOneSecondIntervalLogger"
+                }],
+             "attachDefaultStatLoggers": true
+           }
+        }
 ```
 
 In app data - defaults for logging specified in logback.xml. In case If you want to rename  some moskito loggers.
