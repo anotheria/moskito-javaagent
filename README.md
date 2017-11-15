@@ -38,10 +38,15 @@ b) Extend default monitoring classes @monitoringDefaultClassConfig ( Patterns  d
            "category": "service"
         }
 ```
-c)	In case if you want to connect  from  MoSKito Inspect - select   port  - 9451 - default and  enable  it  using  properties.
-> 			 "startMoskitoBackend": true,
->  			 "moskitoBackendPort": 9451
-
+c)	In case you want to connect  from  MoSKito Inspect - select   port  - 9451 - default and  enable  it  using  config properties:
+```json
+           "startMoskitoBackend": true,
+           "moskitoBackendPort": 9451
+```
+   or system property:   
+    
+			export JAVA_OPTS=" $JAVA_OPTS -DmoskitoAgentPort=9451"
+    
 ### 5) Logging configuration changes.
 
 [moskito-aspect-config.json]  allow to provide  other   logger names.  By default  loggers will be - MoskitoDefault ( see logback.xml),
