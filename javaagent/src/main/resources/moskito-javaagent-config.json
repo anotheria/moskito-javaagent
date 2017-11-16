@@ -44,7 +44,7 @@
             "category": "web"
         }
     ],
-    "weavingClassConfig": ["org.hibernate.*"],
+    "weavingClassConfig": ["org.hibernate.*", "org.apache.ibatis.*"],
     "mode": "PROFILING",
     "startMoskitoBackend": true,
     "moskitoBackendPort": 9451
