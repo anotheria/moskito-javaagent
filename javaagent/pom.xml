@@ -21,6 +21,10 @@
             <artifactId>moskito-control-agent-rmi-endpoint</artifactId>
             <exclusions>
                 <exclusion>
+                    <artifactId>moskito-core</artifactId>
+                    <groupId>net.anotheria</groupId>
+                </exclusion>
+                <exclusion>
                     <artifactId>slf4j-api</artifactId>
                     <groupId>org.slf4j</groupId>
                 </exclusion>
