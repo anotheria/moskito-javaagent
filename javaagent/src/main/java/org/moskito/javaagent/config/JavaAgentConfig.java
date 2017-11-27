@@ -32,6 +32,13 @@ public class JavaAgentConfig {
 	 */
 	@DontConfigure
 	private static final String APP_PACKAGES_PROPERTY = "applicationPackages";
+
+	/**
+	 * Agent port property.
+	 */
+	@DontConfigure
+	private static final String AGENT_PORT_PROPERTY = "moskitoAgentPort";
+
 	/**
 	 * Default config.
 	 */
@@ -103,6 +110,7 @@ public class JavaAgentConfig {
 		initInnerClassConfig();
 		initClassesToInclude();
 		clazzNameToConfigurationStorage.clear();
+		initPortFromProperty();
 	}
 
 	/**
@@ -145,13 +153,29 @@ public class JavaAgentConfig {
 	 */
 	private void initClassesToInclude() {
 		classesToInclude = new HashSet<>(clazzConfig.keySet());
-		System.out.println("initClassesToInclude start weaving " + weavingClassConfig);
 		if (weavingClassConfig == null || weavingClassConfig.length < 1)
 			return;
 		for (String pattern : weavingClassConfig)
 			if (!StringUtils.isEmpty(pattern))
 				classesToInclude.add(pattern);
 
+	}
+
+	/**
+	 * Init agent port.
+	 */
+	private void initPortFromProperty() {
+		String agentPort = System.getProperty(AGENT_PORT_PROPERTY);
+		if (StringUtils.isEmpty(agentPort) ){
+			return;
+		}
+		try {
+			int portNumber = Integer.parseInt(agentPort);
+			setMoskitoBackendPort(portNumber);
+		}
+		catch (NumberFormatException e){
+			//do nothing
+		}
 	}
 
 	/**
