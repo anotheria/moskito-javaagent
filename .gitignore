@@ -1,6 +1,5 @@
 # Maven build directory 
-/javaagent/target/
-/integration-scenario-test/target/
+/moskito-javaagent/target/
 
 # Eclipse related dir's/files
 .project
