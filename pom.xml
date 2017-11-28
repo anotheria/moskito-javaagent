@@ -10,15 +10,8 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>moskito-javaagent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <name>moskito-javaagent-parrent</name>
-    <description>Test of the java agent MF</description>
-    <packaging>pom</packaging>
-
-    <modules>
-        <module>javaagent</module>
-        <module>integration-scenario-test</module>
-    </modules>
-
+    <name>moskito-javaagent</name>
+    <packaging>jar</packaging>
 
     <properties>
         <jersey-version>1.17</jersey-version>
@@ -26,7 +19,6 @@
         <slf4j.version>1.7.16</slf4j.version>
         <logback-classic.version>1.1.5</logback-classic.version>
         <aspect-j-version>1.8.9</aspect-j-version>
-
     </properties>
 
     <dependencyManagement>
@@ -191,5 +183,247 @@
 
         </dependencies>
     </dependencyManagement>
+
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.moskito</groupId>
+            <artifactId>moskito-control-agent-rmi-endpoint</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>moskito-core</artifactId>
+                    <groupId>net.anotheria</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
+            <version>1.2.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>net.anotheria</groupId>
+            <artifactId>moskito-aop</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
+
+        </dependency>
+        <dependency>
+            <groupId>net.anotheria</groupId>
+            <artifactId>moskito-webui</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>moskito-web</artifactId>
+                    <groupId>net.anotheria</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>javassist</artifactId>
+                    <groupId>javassist</groupId>
+                </exclusion>
+                <exclusion>
+                    <groupId>xerces</groupId>
+                    <artifactId>xercesImpl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>jstl</groupId>
+                    <artifactId>jstl</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>net.anotheria</groupId>
+            <artifactId>moskito-sql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.anotheria</groupId>
+            <artifactId>configureme</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>apache-log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-all</artifactId>
+            <version>4.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+        </dependency>
+
+    </dependencies>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>2.4.1</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>target/*</directory>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <index>true</index>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
+                        <manifestEntries>
+                            <Premain-Class>org.moskito.javaagent.AspectTransformationAgent</Premain-Class>
+                            <Agent-Class>org.moskito.javaagent.AspectTransformationAgent</Agent-Class>
+                            <Boot-Class-Path>appdata/</Boot-Class-Path>
+                            <Can-Redefine-Classes>true</Can-Redefine-Classes>
+                            <Can-Retransform-Classes>true</Can-Retransform-Classes>
+                        </manifestEntries>
+                        <manifestSections>
+                            <manifestSection>
+                                <name>Hudson</name>
+                                <manifestEntries>
+                                    <SvnRevision>${env.SVN_REVISION}</SvnRevision>
+                                    <BuildTag>${env.BUILD_TAG}</BuildTag>
+                                    <BuildUrl>${env.BUILD_URL}</BuildUrl>
+                                    <BuildId>${env.BUILD_ID}</BuildId>
+                                    <BuildNumber>${env.BUILD_NUMBER}</BuildNumber>
+                                    <SvnRevision>${env.SVN_REVISION}</SvnRevision>
+                                    <JavaHome>${env.JAVA_HOME}</JavaHome>
+                                </manifestEntries>
+                            </manifestSection>
+                        </manifestSections>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <!-- here the phase you need -->
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.outputDirectory}/META-INF</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/src/main/resources</directory>
+                                    <includes>
+                                        <include>aop.xml</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <!-- create special appdata folder - to be used as bootPath -->
+                        <id>copy-resources-to-appdata</id>
+                        <!-- here the phase you need -->
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/appdata</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/src/main/resources</directory>
+                                    <includes>
+                                        <include>*.*</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>1.4</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <!-- exclude aop - as it placed into META-INF-->
+                                        <exclude>aop.xml</exclude>
+                                        <!-- exclude m-k static resources-->
+                                        <exclude>moskito/**</exclude>
+                                        <!-- exclude logback - as it wil be provided from appdata/-->
+                                        <exclude>**/logback.xml</exclude>
+                                        <exclude>**/web-fragment.xml</exclude>
+                                        <exclude>**/*.tld</exclude>
+                                        <!-- exclude all configurations - as it wil be provided from appdata/-->
+                                        <exclude>**/*.json</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <manifestEntries>
+                                        <Premain-Class>org.moskito.javaagent.AspectTransformationAgent</Premain-Class>
+                                        <Agent-Class>org.moskito.javaagent.AspectTransformationAgent</Agent-Class>
+                                        <Boot-Class-Path>appdata/</Boot-Class-Path>
+                                        <Can-Redefine-Classes>true</Can-Redefine-Classes>
+                                        <Can-Retransform-Classes>true</Can-Retransform-Classes>
+                                    </manifestEntries>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
 
 </project>
