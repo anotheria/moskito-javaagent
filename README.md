@@ -7,6 +7,7 @@ moskito-javaagent
 ### 1) Build and enable.
 
   a). Get moskito-javaagent-1.0.0-SNAPSHOT.jar  artifact from {javaagent-home}/target - directory  and   put it to  some location
+  
   b). Get {javaagent-home}/target/appdata  directory to same location ( provides all required configurations and will be used as bootPath for agent)
 
 ### 2) Add  moskito javaagent to your app, as  java-agent, and provide applications packages to be monitored.
