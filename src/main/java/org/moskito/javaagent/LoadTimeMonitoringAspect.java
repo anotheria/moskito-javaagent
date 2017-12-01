@@ -2,12 +2,15 @@ package org.moskito.javaagent;
 
 import java.lang.reflect.InvocationTargetException;
 
+import net.anotheria.moskito.core.calltrace.*;
+import net.anotheria.moskito.core.context.MoSKitoContext;
+import net.anotheria.moskito.core.journey.Journey;
+import net.anotheria.moskito.core.journey.JourneyManagerFactory;
+import net.anotheria.moskito.core.tracer.Trace;
+import net.anotheria.moskito.core.tracer.TracerRepository;
+import net.anotheria.moskito.core.tracer.Tracers;
 import org.moskito.javaagent.config.JavaAgentConfig;
 import net.anotheria.moskito.aop.aspect.AbstractMoskitoAspect;
-import net.anotheria.moskito.core.calltrace.CurrentlyTracedCall;
-import net.anotheria.moskito.core.calltrace.RunningTraceContainer;
-import net.anotheria.moskito.core.calltrace.TraceStep;
-import net.anotheria.moskito.core.calltrace.TracedCall;
 import net.anotheria.moskito.core.dynamic.IOnDemandStatsFactory;
 import net.anotheria.moskito.core.dynamic.OnDemandStatsProducer;
 import net.anotheria.moskito.core.predefined.ServiceStats;
@@ -44,6 +47,8 @@ public abstract class LoadTimeMonitoringAspect extends AbstractMoskitoAspect<Ser
 	 */
 	private final JavaAgentConfig agentConfig = JavaAgentConfig.getInstance();
 
+	private static final ThreadLocal<String> lastProducerId = new ThreadLocal<>();
+
 	/**
 	 * Abstract pointcut: no expression is defined.
 	 * Expression will be provided to some generated @Aspect via 'aop.xml'.
@@ -54,13 +59,15 @@ public abstract class LoadTimeMonitoringAspect extends AbstractMoskitoAspect<Ser
 
 	@Around (value = "monitoredMethod()")
 	public Object doProfilingMethod(final ProceedingJoinPoint pjp) throws Throwable {
+		final MonitoringClassConfig configuration = agentConfig.getMonitoringConfig(pjp.getSignature().getDeclaringTypeName());
+		if (configuration.isDefaultConfig()) {
+			return pjp.proceed();
+		}
 		switch (agentConfig.getMode()) {
 			case LOG_ONLY:
 				return log(pjp);
 			case PROFILING:
-				final MonitoringClassConfig configuration = agentConfig.getMonitoringConfig(pjp.getSignature().getDeclaringTypeName());
-				return configuration.isDefaultConfig() ? pjp.proceed() :
-						doProfiling(pjp, pjp.getSignature().getDeclaringType().getSimpleName(), configuration.getSubsystem(), configuration.getCategory());
+				return doProfiling(pjp, pjp.getSignature().getDeclaringType().getSimpleName(), configuration.getSubsystem(), configuration.getCategory());
 			default:
 				throw new AssertionError(agentConfig.getMode() + " not supported ");
 		}
@@ -101,73 +108,125 @@ public abstract class LoadTimeMonitoringAspect extends AbstractMoskitoAspect<Ser
 	 */
 	private Object doProfiling(final ProceedingJoinPoint pjp, final String aProducerId, final String aSubsystem, final String aCategory) throws Throwable {
 
-		final OnDemandStatsProducer<ServiceStats> producer = getProducer(pjp, aProducerId, aCategory, aSubsystem, false, FACTORY, false);
+		final OnDemandStatsProducer<ServiceStats> producer = getProducer(
+				pjp, aProducerId, aCategory, aSubsystem, false, FACTORY, true
+		);
 
 		final String producerId = producer.getProducerId();
+		final String prevProducerId = lastProducerId.get();
 
 		final String methodName = pjp.getSignature().getName();
+		final Object[] args = pjp.getArgs();
+
 		final ServiceStats defaultStats = producer.getDefaultStats();
 		final ServiceStats methodStats = producer.getStats(methodName);
 
-		final Object[] args = pjp.getArgs();
+		lastProducerId.set(producerId);
+
 		defaultStats.addRequest();
-		if (methodStats != null)
-			methodStats.addRequest();
+		methodStats.addRequest();
 
-		final TracedCall aRunningTrace = RunningTraceContainer.getCurrentlyTracedCall();
+		TracedCall aRunningTrace = RunningTraceContainer.getCurrentlyTracedCall();
 		TraceStep currentStep = null;
-		final CurrentlyTracedCall currentTrace = aRunningTrace.callTraced() ? (CurrentlyTracedCall) aRunningTrace : null;
-		if (currentTrace != null) {
-			final StringBuilder call = new StringBuilder(producerId).append('.').append(methodName).append("(");
-			if (args != null && args.length > 0) {
-				for (int i = 0; i < args.length; i++) {
-					call.append(args[i]);
-					if (i < args.length - 1) {
-						call.append(", ");
-					}
-				}
-			}
-			call.append(")");
-			currentStep = currentTrace.startStep(call.toString(), producer);
-		}
-		long startTime = System.nanoTime();
-		Object result = null;
-		try {
-			result = pjp.proceed();
-			return result;
-		} catch (final Throwable t) {
-			defaultStats.notifyError();
-			if (methodStats != null)
-				methodStats.notifyError();
+		CurrentlyTracedCall currentTrace = aRunningTrace.callTraced() ? (CurrentlyTracedCall) aRunningTrace : null;
 
-			if (currentStep != null)
+		MoSKitoContext context = MoSKitoContext.get();
+		TracerRepository tracerRepository = TracerRepository.getInstance();
+
+		boolean tracingRequired =
+				!context.hasTracerFired() && tracerRepository.isTracingEnabledForProducer(producerId);
+		Trace trace = null;
+		boolean journeyStartedByCurrentStep = false;
+		StringBuilder call = null;
+
+		if (tracingRequired) {
+
+			trace = new Trace();
+			context.setTracerFired();
+
+			if (currentTrace == null) {
+
+				String journeyCallName = Tracers.getCallName(trace);
+				RunningTraceContainer.startTracedCall(journeyCallName);
+				journeyStartedByCurrentStep = true;
+
+				currentTrace = (CurrentlyTracedCall) RunningTraceContainer.getCurrentlyTracedCall();
+
+			}
+
+			call = TracingUtil.buildCall(producerId, methodName, args, Tracers.getCallName(trace));
+			currentStep = currentTrace.startStep(call.toString(), producer);
+
+		}
+
+		long startTime = System.nanoTime();
+		Object ret = null;
+
+		try {
+			ret = pjp.proceed();
+			return ret;
+		}
+		catch (Throwable t) {
+
+			// InvocationTargetException may wrap real exception.
+			// Unwrapping it if necessary
+			final Throwable realCause = (t instanceof InvocationTargetException) ?
+					t.getCause() : t;
+
+			defaultStats.notifyError(realCause);
+			methodStats.notifyError();
+
+			if (tracingRequired) {
+
 				currentStep.setAborted();
 
-			if (t instanceof InvocationTargetException)
-				throw t.getCause();
-			throw t;
+				if (t instanceof InvocationTargetException) {
+					call.append(" ERR ").append(realCause.getMessage());
+				}
+
+			}
+
+			throw realCause;
+
 		} finally {
+
 			long exTime = System.nanoTime() - startTime;
-			defaultStats.addExecutionTime(exTime);
-			if (methodStats != null)
-				methodStats.addExecutionTime(exTime);
+
+			if (!producerId.equals(prevProducerId)) {
+				defaultStats.addExecutionTime(exTime);
+			}
+
+			methodStats.addExecutionTime(exTime);
+			lastProducerId.set(prevProducerId);
 
 			defaultStats.notifyRequestFinished();
-			if (methodStats != null)
-				methodStats.notifyRequestFinished();
+			methodStats.notifyRequestFinished();
 
-			if (currentStep != null) {
+			if (tracingRequired) {
+
 				currentStep.setDuration(exTime);
-				try {
-					currentStep.appendToCall(" = " + result);
-				} catch (final Throwable t) {
-					currentStep.appendToCall(" = ERR: " + t.getMessage() + " (" + t.getClass() + ")");
-				}
-			}
-			if (currentTrace != null)
+				currentStep.appendToCall(" = " + TracingUtil.parameter2string(ret));
+
 				currentTrace.endStep();
 
+				call.append(" = ").append(TracingUtil.parameter2string(ret));
+				trace.setCall(call.toString());
+				trace.setDuration(exTime);
+				trace.setElements(Thread.currentThread().getStackTrace());
+
+				if (journeyStartedByCurrentStep) {
+					//now finish the journey.
+					Journey myJourney = JourneyManagerFactory.getJourneyManager().getOrCreateJourney(Tracers.getJourneyNameForTracers(producerId));
+					myJourney.addUseCase((CurrentlyTracedCall) RunningTraceContainer.endTrace());
+					RunningTraceContainer.cleanup();
+				}
+
+				tracerRepository.addTracedExecution(producerId, trace);
+
+			}
+
 		}
+
 	}
 
 }

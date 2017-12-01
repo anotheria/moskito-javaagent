@@ -1,0 +1,32 @@
+<aspectj>
+    <aspects>
+        <!-- see: http://www.eclipse.org/aspectj/doc/released/devguide/ltw-configuration.html -->
+        <concrete-aspect name="org.moskito.javaagent.ConcreteLoadTimeMonitoringAspect" extends="org.moskito.javaagent.LoadTimeMonitoringAspect">
+            <pointcut name="monitoredMethod" expression="execution(* *(..))"/>
+        </concrete-aspect>
+        <concrete-aspect name="org.moskito.javaagent.ConcreteSqlCallsMonitoringAspect" extends="org.moskito.javaagent.SqlCallsMonitoringAspect">
+            <pointcut name="monitoredStatementMethods" expression="call(java.sql.ResultSet java.sql.Statement.executeQuery(String))
+                    || call(int java.sql.Statement.executeUpdate(String))
+                    || call(int java.sql.Statement.executeUpdate(String, int))
+                    || call(int java.sql.Statement.executeUpdate(String, int[]))
+                    || call(int java.sql.Statement.executeUpdate(String, String[]))
+                    || call(boolean java.sql.Statement.execute(String))
+                    || call(boolean java.sql.Statement.execute(String,int))
+                    || call(boolean java.sql.Statement.execute(String,int[]))
+                    || call(boolean java.sql.Statement.execute(String,String[]))
+                    || call(long java.sql.Statement.executeLargeUpdate(String))
+                    || call(long java.sql.Statement.executeLargeUpdate(String,String[]))
+                    || call(long java.sql.Statement.executeLargeUpdate(String, int))
+                    || call(long java.sql.Statement.executeLargeUpdate(String, int[])) "/>
+            <pointcut name="monitoredPreparedStatementMethods" expression="call(boolean java.sql.PreparedStatement.execute())
+                    || call(long java.sql.PreparedStatement.executeLargeUpdate())
+                    || call(java.sql.ResultSet java.sql.PreparedStatement.executeQuery())
+                    || call(int java.sql.PreparedStatement.executeUpdate()) "/>
+        </concrete-aspect>
+    </aspects>
+
+    <weaver options="-verbose -showWeaveInfo -debug">
+        <include within="*"/>
+    </weaver>
+
+</aspectj>

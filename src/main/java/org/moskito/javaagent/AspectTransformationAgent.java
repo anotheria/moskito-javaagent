@@ -4,6 +4,7 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
 
+import org.moskito.controlagent.endpoints.rmi.RMIEndpoint;
 import org.moskito.javaagent.config.JavaAgentConfig;
 import net.anotheria.moskito.webui.embedded.StartMoSKitoInspectBackendForRemote;
 import org.aspectj.weaver.loadtime.ClassPreProcessorAgentAdapter;
@@ -79,6 +80,7 @@ public class AspectTransformationAgent implements java.lang.instrument.ClassFile
 				LOG.info("Starting Moskito backend on " + CONFIGURATION.getMoskitoBackendPort() + " port! !");
 				StartMoSKitoInspectBackendForRemote.startMoSKitoInspectBackend(CONFIGURATION.getMoskitoBackendPort());
 				LOG.info("Starting Moskito backend on " + CONFIGURATION.getMoskitoBackendPort() + " port! Performed successfully!");
+				RMIEndpoint.startRMIEndpoint();
 			} catch (final Throwable mise) {
 				LOG.error("Failed to start moskitoInspect backend. [" + mise.getMessage() + "]", mise);
 			}

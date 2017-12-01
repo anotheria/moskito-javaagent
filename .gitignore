@@ -1,6 +1,5 @@
-# Maven build directory 
-/javaagent/target/
-/integration-scenario-test/target/
+# Maven build directory
+/target
 
 # Eclipse related dir's/files
 .project
@@ -9,6 +8,7 @@
 .settings/
 bin/
 tmp/
+
 
 # IntelliJ related dir's/files
 *.iml

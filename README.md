@@ -6,13 +6,15 @@ moskito-javaagent
 
 ### 1) Build and enable.
 
-  a). Get javaagent-1.0.0-SNAPSHOT.jar  artifact from {javaagent-home}/target - directory  and   put it to  some location
-  b). Get {javaagent-home}/target/appdata  directory to same location ( provides all required configurations and will be used as bootPath for agent)
+  a) Get moskito-javaagent-1.0.0-SNAPSHOT.jar  artifact from {javaagent-home}/target - directory  and   put it to  some location
+  
+  b) Get {javaagent-home}/target/appdata  directory to same location ( provides all required configurations and will be used as bootPath for agent)
 
 ### 2) Add  moskito javaagent to your app, as  java-agent, and provide applications packages to be monitored.
-   	as example:
-			export JAVA_OPTS=" $JAVA_OPTS -javaagent:/[full   path]/javaagent/target/javaagent-1.0.0-SNAPSHOT.jar"
-			export JAVA_OPTS=" $JAVA_OPTS export JAVA_OPTS="$JAVA_OPTS -DapplicationPackages=com.test,com.anothertest"
+   as example:   	
+   	   
+		export JAVA_OPTS=" $JAVA_OPTS -javaagent:/[full_path]/moskito-javaagent/target/moskito-javaagent-1.0.0-SNAPSHOT.jar"
+		export JAVA_OPTS=" $JAVA_OPTS export JAVA_OPTS="$JAVA_OPTS -DapplicationPackages=com.test,com.anothertest"
 
   By default following classes are monitored: \*DAO\*, \*Repository\*, \*Service\*, \*Manager\*, \*Controller\*.
 
@@ -38,10 +40,15 @@ b) Extend default monitoring classes @monitoringDefaultClassConfig ( Patterns  d
            "category": "service"
         }
 ```
-c)	In case if you want to connect  from  MoSKito Inspect - select   port  - 9451 - default and  enable  it  using  properties.
-> 			 "startMoskitoBackend": true,
->  			 "moskitoBackendPort": 9451
-
+c)	In case you want to connect  from  MoSKito Inspect - select   port  - 9451 - default and  enable  it  using  config properties:
+```json
+           "startMoskitoBackend": true,
+           "moskitoBackendPort": 9451
+```
+   or system property:   
+    
+		export JAVA_OPTS=" $JAVA_OPTS -DmoskitoAgentPort=9451"
+    
 ### 5) Logging configuration changes.
 
 [moskito-aspect-config.json]  allow to provide  other   logger names.  By default  loggers will be - MoskitoDefault ( see logback.xml),
@@ -53,17 +60,17 @@ NOTE :
 					"@loggers": [],  -  allow to   create  intervalName - logger name mapping
 like :
 ```json
-{
-   "@intervalLogger": {
-     "defaultMoskitoLoggerName": "",
-     "@loggers": [
-		{
- 			"intervalName" : "1s",
-			"loggerName" : "MoskitoOneSecondIntervalLogger"
-		}],
-     "attachDefaultStatLoggers": true
-   }
-}
+        {
+           "@intervalLogger": {
+             "defaultMoskitoLoggerName": "",
+             "@loggers": [
+                {
+                    "intervalName" : "1s",
+                    "loggerName" : "MoskitoOneSecondIntervalLogger"
+                }],
+             "attachDefaultStatLoggers": true
+           }
+        }
 ```
 
 In app data - defaults for logging specified in logback.xml. In case If you want to rename  some moskito loggers.

@@ -32,6 +32,13 @@ public class JavaAgentConfig {
 	 */
 	@DontConfigure
 	private static final String APP_PACKAGES_PROPERTY = "applicationPackages";
+
+	/**
+	 * Agent port property.
+	 */
+	@DontConfigure
+	private static final String AGENT_PORT_PROPERTY = "moskitoAgentPort";
+
 	/**
 	 * Default config.
 	 */
@@ -52,6 +59,11 @@ public class JavaAgentConfig {
 	@SerializedName("@monitoringClassConfig")
 	private MonitoringClassConfig[] monitoringClassConfig;
 
+	/**
+	 * Weaving class patterns configurations.
+	 */
+	@Configure
+	private String[] weavingClassConfig;
 	/**
 	 * Classes to be monitored, contains default and configured.
 	 */
@@ -81,7 +93,7 @@ public class JavaAgentConfig {
 	 * Classes which should be passed to weaving.
 	 */
 	@DontConfigure
-	private volatile Set<String> classesToInclude = new HashSet<>();
+	private volatile Set<String> classesToInclude;
 	/**
 	 * Map class name to {@link MonitoringClassConfig}, for performance improvement.
 	 */
@@ -93,19 +105,12 @@ public class JavaAgentConfig {
 	 */
 	@AfterConfiguration
 	public synchronized void init() {
-		Map<String, MonitoringClassConfig> config = new HashMap<>();
 		initDefaultMonitoredClasses();
 		copyConfiguredMonitoredClasses();
-		if (monitoredClasses.length < 1)
-			return;
-		for (final MonitoringClassConfig cnf : monitoredClasses)
-			if (cnf != null)
-				for (final String pattern : cnf.getPatterns())
-					if (!StringUtils.isEmpty(pattern))
-						config.put(pattern, cnf);
-		clazzConfig = config;
-		classesToInclude = new HashSet<>(clazzConfig.keySet());
+		initInnerClassConfig();
+		initClassesToInclude();
 		clazzNameToConfigurationStorage.clear();
+		initPortFromProperty();
 	}
 
 	/**
@@ -126,6 +131,51 @@ public class JavaAgentConfig {
 				monitoredClasses[i] = createMonitoringClassConfig(classNamePatternConfig.getSubsystem(), classNamePatternConfig.getCategory(), patterns);
 				i++;
 			}
+	}
+
+	/**
+	 * Init Inner class config.
+	 */
+	private void initInnerClassConfig() {
+		Map<String, MonitoringClassConfig> config = new HashMap<>();
+		if (monitoredClasses.length < 1)
+			return;
+		for (final MonitoringClassConfig cnf : monitoredClasses)
+			if (cnf != null)
+				for (final String pattern : cnf.getPatterns())
+					if (!StringUtils.isEmpty(pattern))
+						config.put(pattern, cnf);
+		clazzConfig = config;
+	}
+
+	/**
+	 * Init classes to include.
+	 */
+	private void initClassesToInclude() {
+		classesToInclude = new HashSet<>(clazzConfig.keySet());
+		if (weavingClassConfig == null || weavingClassConfig.length < 1)
+			return;
+		for (String pattern : weavingClassConfig)
+			if (!StringUtils.isEmpty(pattern))
+				classesToInclude.add(pattern);
+
+	}
+
+	/**
+	 * Init agent port.
+	 */
+	private void initPortFromProperty() {
+		String agentPort = System.getProperty(AGENT_PORT_PROPERTY);
+		if (StringUtils.isEmpty(agentPort) ){
+			return;
+		}
+		try {
+			int portNumber = Integer.parseInt(agentPort);
+			setMoskitoBackendPort(portNumber);
+		}
+		catch (NumberFormatException e){
+			//do nothing
+		}
 	}
 
 	/**
@@ -199,6 +249,14 @@ public class JavaAgentConfig {
 		this.monitoringDefaultClassConfig = monitoringDefaultClassConfig;
 	}
 
+	public String[] getWeavingClassConfig() {
+		return weavingClassConfig;
+	}
+
+	public void setWeavingClassConfig(String[] weavingClassConfig) {
+		this.weavingClassConfig = weavingClassConfig;
+	}
+
 	/**
 	 * Resolve {@link MonitoringClassConfig } for incoming type name.
 	 *
@@ -265,6 +323,7 @@ public class JavaAgentConfig {
 		final StringBuffer sb = new StringBuffer("LoadTimeMonitoringConfig{");
 		sb.append("monitoringDefaultClassConfig=").append(monitoringDefaultClassConfig == null ? "null" : Arrays.asList(monitoringDefaultClassConfig).toString());
 		sb.append(", monitoringClassConfig=").append(monitoringClassConfig == null ? "null" : Arrays.asList(monitoringClassConfig).toString());
+		sb.append(", weavingClassConfig=").append(weavingClassConfig == null ? "null" : Arrays.asList(weavingClassConfig).toString());
 		sb.append(", mode=").append(mode);
 		sb.append(", startMoskitoBackend=").append(startMoskitoBackend);
 		sb.append(", moskitoBackendPort=").append(moskitoBackendPort);
