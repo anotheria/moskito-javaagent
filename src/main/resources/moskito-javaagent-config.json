@@ -29,11 +29,6 @@
     ],
     "@monitoringClassConfig": [
         {
-          "patterns" : ["org.moskito.demo.burgershop.burgershopstripped.*"],
-          "subsystem" : "burger",
-          "category" : "burger"
-        },
-        {
             "patterns": ["test.*"],
             "subsystem": "default",
             "category": "web"
