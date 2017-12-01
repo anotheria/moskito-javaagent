@@ -1,5 +1,5 @@
-# Maven build directory 
-/moskito-javaagent/target/
+# Maven build directory
+/target
 
 # Eclipse related dir's/files
 .project
@@ -8,6 +8,7 @@
 .settings/
 bin/
 tmp/
+
 
 # IntelliJ related dir's/files
 *.iml
