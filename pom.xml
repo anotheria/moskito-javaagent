@@ -313,7 +313,7 @@
                         <manifestEntries>
                             <Premain-Class>org.moskito.javaagent.AspectTransformationAgent</Premain-Class>
                             <Agent-Class>org.moskito.javaagent.AspectTransformationAgent</Agent-Class>
-                            <Boot-Class-Path>appdata/</Boot-Class-Path>
+                            <Boot-Class-Path>configuration/</Boot-Class-Path>
                             <Can-Redefine-Classes>true</Can-Redefine-Classes>
                             <Can-Retransform-Classes>true</Can-Retransform-Classes>
                         </manifestEntries>
@@ -358,7 +358,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <!-- create special appdata folder - to be used as bootPath -->
+                        <!-- create special configuration folder - to be used as bootPath -->
                         <id>copy-resources-to-appdata</id>
                         <!-- here the phase you need -->
                         <phase>validate</phase>
@@ -366,7 +366,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/appdata</outputDirectory>
+                            <outputDirectory>${project.build.directory}/configuration</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>${basedir}/src/main/resources</directory>
@@ -398,11 +398,11 @@
                                         <exclude>aop.xml</exclude>
                                         <!-- exclude m-k static resources-->
                                         <exclude>moskito/**</exclude>
-                                        <!-- exclude logback - as it wil be provided from appdata/-->
+                                        <!-- exclude logback - as it wil be provided from configuration/-->
                                         <exclude>**/logback.xml</exclude>
                                         <exclude>**/web-fragment.xml</exclude>
                                         <exclude>**/*.tld</exclude>
-                                        <!-- exclude all configurations - as it wil be provided from appdata/-->
+                                        <!-- exclude all configurations - as it wil be provided from configuration/-->
                                         <exclude>**/*.json</exclude>
                                     </excludes>
                                 </filter>
@@ -412,7 +412,7 @@
                                     <manifestEntries>
                                         <Premain-Class>org.moskito.javaagent.AspectTransformationAgent</Premain-Class>
                                         <Agent-Class>org.moskito.javaagent.AspectTransformationAgent</Agent-Class>
-                                        <Boot-Class-Path>appdata/</Boot-Class-Path>
+                                        <Boot-Class-Path>configuration/</Boot-Class-Path>
                                         <Can-Redefine-Classes>true</Can-Redefine-Classes>
                                         <Can-Retransform-Classes>true</Can-Retransform-Classes>
                                     </manifestEntries>
