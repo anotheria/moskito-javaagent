@@ -59,83 +59,8 @@ public abstract class LoadTimeMonitoringAspect extends AbstractMoskitoAspect<Ser
 	@Pointcut
 	abstract void monitoredMethod();
 
-	private static boolean listenerAdded = false;
-
-	public Object editTomcatConfiguration(ProceedingJoinPoint joinPoint) throws Throwable {
-
-		if(!listenerAdded) {
-
-			TomcatWebappConfigBuilder builder = new TomcatWebappConfigBuilder(joinPoint.getArgs()[0]);
-
-			Map<String, String> moskitoUiFilterInitParams = new HashMap<>();
-			moskitoUiFilterInitParams.put("path", "/moskito-inspect/");
-
-			Map<String, String> genericMonitoringFilterParams = new HashMap<>();
-			genericMonitoringFilterParams.put("limit", "100");
-
-			Map<String, String> jSTalkBackFilterFilterParams = new HashMap<>();
-			jSTalkBackFilterFilterParams.put("limit", "100");
-
-			builder.addListener(StartStopListener.class.getCanonicalName())
-					.addListener("net.anotheria.moskito.webui.util.SetupPreconfiguredAccumulators")
-					.addListener("net.anotheria.moskito.web.session.SessionCountProducer")
-					.addFilter(
-							"net.anotheria.moskito.web.filters.MoskitoCommandFilter",
-							"MoskitoCommandFilter",
-							new String[] {"/*"}
-					)
-					.addFilter(
-							"net.anotheria.moskito.web.filters.JourneyFilter",
-							"JourneyFilter",
-							new String[] {"/*"}
-					)
-					.addFilter(
-							"net.anotheria.moskito.web.filters.GenericMonitoringFilter",
-							"GenericMonitoringFilter",
-							new String[] {"/*"},
-							genericMonitoringFilterParams
-					)
-					.addFilter(
-							"net.anotheria.moskito.web.filters.JourneyStarterFilter",
-							"JourneyStarterFilter",
-							new String[] {"/*"}
-					)
-					.addFilter(
-							"net.anotheria.moskito.web.filters.JSTalkBackFilter",
-							"JSTalkBackFilter",
-							new String[] {"/jstalkbackfilter/*"},
-							jSTalkBackFilterFilterParams
-					)
-					.addFilter(
-							"net.anotheria.anoplass.api.filter.APIFilter",
-							"APIFilter",
-							new String[]{"/*"})
-					.addFilter(
-							"net.anotheria.moskito.webui.MoskitoUIFilter",
-							"MoskitoUIFilter",
-							new String[]{
-									"/moskito-inspect/*",
-									"/moskito-inspect/"
-							},
-							moskitoUiFilterInitParams);
-
-			listenerAdded = true;
-
-		}
-
-		return joinPoint.proceed();
-
-	}
-
 	@Around (value = "monitoredMethod()")
 	public Object doProfilingMethod(final ProceedingJoinPoint pjp) throws Throwable {
-
-		final String className = pjp.getSignature().getDeclaringType().getCanonicalName();
-		final String methodName = pjp.getSignature().getName();
-
-		if(className.equals("org.apache.catalina.startup.ContextConfig") &&
-				methodName.equals("configureContext"))
-			return editTomcatConfiguration(pjp);
 
 		final MonitoringClassConfig configuration = agentConfig.getMonitoringConfig(pjp.getSignature().getDeclaringTypeName());
 		if (configuration.isDefaultConfig()) {
