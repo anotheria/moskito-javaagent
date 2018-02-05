@@ -60,7 +60,7 @@ public abstract class TomcatConfigAspect {
 
             builder.addListener(StartStopListener.class.getCanonicalName())
                     .addListener("net.anotheria.moskito.webui.util.SetupPreconfiguredAccumulators")
-                    .addListener("net.anotheria.moskito.web.session.SessionCountProducer")
+                  //  .addListener("net.anotheria.moskito.web.session.SessionCountProducer")
                     .addFilter(
                             "net.anotheria.moskito.web.filters.MoskitoCommandFilter",
                             "MoskitoCommandFilter",
