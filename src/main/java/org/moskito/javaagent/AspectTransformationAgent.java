@@ -86,14 +86,18 @@ public class AspectTransformationAgent implements java.lang.instrument.ClassFile
 			}
 	}
 
-
 	@Override
 	public byte[] transform(final ClassLoader loader, final String className, Class<?> classBeingRedefined, final ProtectionDomain protectionDomain, final byte[] classfileBuffer) throws IllegalClassFormatException {
+
+		if(className.equals(TomcatConfigAspect.CONFIG_INJECTION_CLASS)) {
+			return classPreProcessorAgentAdapter.transform(loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
+		}
+
 		if (!CONFIGURATION.shouldPerformWeaving(className))
 			return classfileBuffer;
+
 		return classPreProcessorAgentAdapter.transform(loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
+
 	}
-
-
 
 }
