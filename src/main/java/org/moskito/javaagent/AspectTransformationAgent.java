@@ -1,15 +1,15 @@
 package org.moskito.javaagent;
 
+import net.anotheria.moskito.webui.embedded.StartMoSKitoInspectBackendForRemote;
+import org.aspectj.weaver.loadtime.ClassPreProcessorAgentAdapter;
+import org.moskito.controlagent.endpoints.rmi.RMIEndpoint;
+import org.moskito.javaagent.config.JavaAgentConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
-
-import org.moskito.controlagent.endpoints.rmi.RMIEndpoint;
-import org.moskito.javaagent.config.JavaAgentConfig;
-import net.anotheria.moskito.webui.embedded.StartMoSKitoInspectBackendForRemote;
-import org.aspectj.weaver.loadtime.ClassPreProcessorAgentAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Main moskito - agent entry-point.
@@ -34,7 +34,6 @@ public class AspectTransformationAgent implements java.lang.instrument.ClassFile
 
 	/**
 	 * JVM hook to statically load the javaagent at startup.
-	 * <p/>
 	 * After the Java Virtual Machine (JVM) has initialized, the premain method
 	 * will be called. Then the real application main method will be called.
 	 *
@@ -53,7 +52,6 @@ public class AspectTransformationAgent implements java.lang.instrument.ClassFile
 
 	/**
 	 * JVM hook to dynamically load javaagent at runtime.
-	 * <p/>
 	 * The agent class may have an agentmain method for use when the agent is
 	 * started after VM startup.
 	 *
