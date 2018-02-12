@@ -1,12 +1,14 @@
 package org.moskito.javaagent.request;
 
+import org.moskito.javaagent.request.config.RequestListenerConfiguration;
 import org.moskito.javaagent.request.dto.RequestDTO;
 import org.moskito.javaagent.request.dto.RequestExecutionResultDTO;
 
 /**
  * Interface for listeners that will monitor
  * incoming http request in case javaagent
- * started on tomcat server
+ * started on tomcat server.
+ * Should have public default constructor.
  */
 public interface RequestListener {
 
@@ -21,5 +23,13 @@ public interface RequestListener {
      * @param finishDTO finished request data
      */
     void onRequestFinished(RequestExecutionResultDTO finishDTO);
+
+    /**
+     * Configure listener.
+     * Called on listener instantiation.
+     *
+     * @param conf listener configuration
+     */
+    void configure(RequestListenerConfiguration conf);
 
 }

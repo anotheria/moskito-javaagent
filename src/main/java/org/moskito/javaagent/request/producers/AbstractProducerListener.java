@@ -1,5 +1,6 @@
 package org.moskito.javaagent.request.producers;
 
+import net.anotheria.moskito.core.dynamic.EntryCountLimitedOnDemandStatsProducer;
 import net.anotheria.moskito.core.dynamic.OnDemandStatsProducer;
 import net.anotheria.moskito.core.dynamic.OnDemandStatsProducerException;
 import net.anotheria.moskito.core.predefined.Constants;
@@ -7,6 +8,7 @@ import net.anotheria.moskito.core.predefined.FilterStats;
 import net.anotheria.moskito.core.predefined.FilterStatsFactory;
 import net.anotheria.moskito.core.registry.ProducerRegistryFactory;
 import org.moskito.javaagent.request.RequestListener;
+import org.moskito.javaagent.request.config.RequestListenerConfiguration;
 import org.moskito.javaagent.request.dto.RequestDTO;
 import org.moskito.javaagent.request.dto.RequestExecutionResultDTO;
 import org.slf4j.Logger;
@@ -31,21 +33,43 @@ public abstract class AbstractProducerListener implements RequestListener {
      */
     private OnDemandStatsProducer<FilterStats> producer;
 
+    private String producerId;
+    private String producerCategory;
+    private String producerSubsystem;
+
     /**
-     * Creates and registers producer with given arguments
+     * Creates and registers producer associated with listener.
+     * @param limit producer stats limit
+     */
+    private void init(int limit) {
+
+        this.producer = limit < 0 ?
+                new OnDemandStatsProducer<>(
+                        producerId, producerCategory, producerSubsystem,
+                        new FilterStatsFactory(Constants.getDefaultIntervals())
+                ) :
+                new EntryCountLimitedOnDemandStatsProducer<>(
+                        producerId, producerCategory, producerSubsystem,
+                        new FilterStatsFactory(Constants.getDefaultIntervals()),
+                        limit
+                );
+
+        ProducerRegistryFactory.getProducerRegistryInstance().registerProducer(this.producer);
+
+    }
+
+    /**
+     * Saves given producer credentials to
+     * later create it on {@link AbstractProducerListener#configure(RequestListenerConfiguration)} call.
+     *
      * @param producerId id of producer
      * @param category producer category
      * @param subsystem producer subsystem
      */
     protected AbstractProducerListener(String producerId, String category, String subsystem) {
-
-        this.producer = new OnDemandStatsProducer<>(
-                producerId, category, subsystem,
-                new FilterStatsFactory(Constants.getDefaultIntervals())
-        );
-
-        ProducerRegistryFactory.getProducerRegistryInstance().registerProducer(this.producer);
-
+        this.producerId = producerId;
+        this.producerCategory = category;
+        this.producerSubsystem = subsystem;
     }
 
     /**
@@ -56,6 +80,38 @@ public abstract class AbstractProducerListener implements RequestListener {
      * @return name of statistics for given request
      */
     protected abstract String getStatsNameFromRequest(RequestDTO requestDTO);
+
+    /**
+     * Fills given stats object
+     * with data from given request data object
+     * @param stats stats to fill
+     * @param resultDTO source of data
+     */
+    private void fillStatisticsAfterRequest(FilterStats stats, RequestExecutionResultDTO resultDTO) {
+
+        stats.addExecutionTime(resultDTO.getDuration());
+
+        switch (resultDTO.getExceptionKind()) {
+
+            case IO:
+                stats.notifyIOException(resultDTO.getException());
+                break;
+            case SERVLET:
+                stats.notifyServletException(resultDTO.getException());
+                break;
+            case RUNTIME:
+                stats.notifyRuntimeException(resultDTO.getException());
+                break;
+            case OTHER:
+                stats.notifyError(resultDTO.getException());
+                break;
+            case NONE:
+
+        }
+
+        stats.notifyRequestFinished();
+
+    }
 
     /**
      * Adds request to default and request-specific stats
@@ -70,16 +126,14 @@ public abstract class AbstractProducerListener implements RequestListener {
             return;
         }
 
+        producer.getDefaultStats().addRequest();
+
         try {
-
-            FilterStats requestStats = producer.getStats(statsName);
-            FilterStats defaultStats = producer.getDefaultStats();
-
-            requestStats.addRequest();
-            defaultStats.addRequest();
-
+            producer.getStats(statsName).addRequest();
         } catch (OnDemandStatsProducerException e) {
-            log.warn("Failed to process data for " + producer.getProducerId() + " producer", e);
+            log.debug(
+                    "Failed to process data for " + producer.getProducerId() + " producer. Stats amount limit reached"
+            );
         }
 
     }
@@ -98,43 +152,27 @@ public abstract class AbstractProducerListener implements RequestListener {
             return;
         }
 
+        fillStatisticsAfterRequest(producer.getDefaultStats(), resultDTO);
+
         try {
-
-            FilterStats requestStats = producer.getStats(statsName);
-            FilterStats defaultStats = producer.getDefaultStats();
-
-            requestStats.addExecutionTime(resultDTO.getDuration());
-            defaultStats.addExecutionTime(resultDTO.getDuration());
-
-            switch (resultDTO.getExceptionKind()) {
-
-                case IO:
-                    requestStats.notifyIOException(resultDTO.getException());
-                    defaultStats.notifyIOException(resultDTO.getException());
-                    break;
-                case SERVLET:
-                    requestStats.notifyServletException(resultDTO.getException());
-                    defaultStats.notifyServletException(resultDTO.getException());
-                    break;
-                case RUNTIME:
-                    requestStats.notifyRuntimeException(resultDTO.getException());
-                    defaultStats.notifyRuntimeException(resultDTO.getException());
-                    break;
-                case OTHER:
-                    requestStats.notifyError(resultDTO.getException());
-                    defaultStats.notifyError(resultDTO.getException());
-                    break;
-                case NONE:
-
-            }
-
-            requestStats.notifyRequestFinished();
-            defaultStats.notifyRequestFinished();
-
+            fillStatisticsAfterRequest(producer.getStats(statsName), resultDTO);
         } catch (OnDemandStatsProducerException e) {
-            log.warn("Failed to process data for " + producer.getProducerId() + " producer", e);
+            log.debug(
+                    "Failed to process data for " + producer.getProducerId() + " producer. Stats amount limit reached"
+            );
         }
 
+    }
+
+
+    /**
+     * Configure listener.
+     * Called on listener instantiation.
+     *
+     * @param conf listener configuration
+     */
+    public void configure(RequestListenerConfiguration conf){
+        init(conf.getProducersStatsLimit());
     }
 
 }

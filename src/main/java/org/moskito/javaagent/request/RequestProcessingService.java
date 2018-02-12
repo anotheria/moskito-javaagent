@@ -2,6 +2,8 @@ package org.moskito.javaagent.request;
 
 import net.anotheria.moskito.core.config.MoskitoConfigurationHolder;
 import net.anotheria.moskito.core.config.filter.FilterConfig;
+import org.moskito.javaagent.config.JavaAgentConfig;
+import org.moskito.javaagent.request.config.RequestListenerConfiguration;
 import org.moskito.javaagent.request.dto.RequestDTO;
 import org.moskito.javaagent.request.dto.RequestExecutionResultDTO;
 import org.moskito.javaagent.request.producers.*;
@@ -75,15 +77,19 @@ public class RequestProcessingService {
 
         FilterConfig filterConfig = MoskitoConfigurationHolder.getConfiguration().getFilterConfig();
 
+        RequestListenerConfiguration conf = new RequestListenerConfiguration();
+        conf.setProducersStatsLimit(JavaAgentConfig.getInstance().getRequestStatsLimit());
+
         for (String caseExtractorName : filterConfig.getCaseExtractors()) {
 
             if(caseExtractorsAndRequestListenersAliases.containsKey(caseExtractorName)) {
                 try {
-                    interceptionListeners.add(
-                            caseExtractorsAndRequestListenersAliases.get(caseExtractorName).newInstance()
-                    );
+                    RequestListener listener = caseExtractorsAndRequestListenersAliases.get(caseExtractorName)
+                            .newInstance();
+                    listener.configure(conf);
+                    interceptionListeners.add(listener);
                 } catch (InstantiationException | IllegalAccessException e) {
-                    log.error("Failed to instantiate listener. Case extractor aliases is corrupted");
+                    log.error("Failed to instantiate listener. Case extractor aliases is corrupted", e);
                 }
             }
 
