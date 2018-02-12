@@ -4,19 +4,22 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.moskito.javaagent.request.RequestFinishDTO;
-import org.moskito.javaagent.request.RequestStartDTO;
-import org.moskito.javaagent.request.RequestURIProducerService;
+import org.moskito.javaagent.request.RequestProcessingService;
+import org.moskito.javaagent.request.dto.RequestDTO;
+import org.moskito.javaagent.request.dto.RequestExecutionResultDTO;
+import org.moskito.javaagent.util.HttpRequestParsingUtil;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 
 /**
- * Aspect for editing tomcat webapps configuration
+ * Aspect for collecting tomcat http requests statistics
  */
 @Aspect
 public abstract class TomcatRequestInterceptionAspect {
 
+    /**
+     * Name of class that contain current interception point
+     */
     public static final String REQUEST_INTERCEPTION_CLASS = "org/apache/catalina/core/StandardContextValve";
 
     /**
@@ -26,11 +29,10 @@ public abstract class TomcatRequestInterceptionAspect {
     @Pointcut()
     abstract void configurationInjectionMethods();
 
+
     /**
-     * Adds filters and listeners definitions to tomcat
-     * configuration by editing method argument that
-     * contains parsed xml webapp configuration before it pass
-     * to configuration applying method.
+     * Cuts around org.apache.catalina.core.StandardContextValve.invoke(Request, Response)
+     * method to extract request statistics.
      *
      * @param joinPoint join point of required method
      *
@@ -38,55 +40,42 @@ public abstract class TomcatRequestInterceptionAspect {
     @Around(value = "configurationInjectionMethods()")
     public Object editTomcatConfiguration(ProceedingJoinPoint joinPoint) throws Throwable {
 
-        // Implements HttpServletRequest
+        // Instance of org.apache.catalina.connector.Request
+        // that implements javax.servlet.http.HttpServletRequest
         Object req =  joinPoint.getArgs()[0];
 
         long startTime = System.nanoTime();
-        RequestStartDTO requestStartDTO = new RequestStartDTO();
-        RequestFinishDTO requestFinishDTO = new RequestFinishDTO();
 
-        String uri = null;
-
-        try {
-            uri = (String) req.getClass().getMethod("getRequestURI").invoke(req);
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            System.err.println("Failed to extract uri from request");
-            e.printStackTrace();
-        }
-
-        requestStartDTO.setUri(uri);
-
-        RequestURIProducerService.getInstance().notifyRequestStarted(requestStartDTO);
+        RequestDTO requestDTO = HttpRequestParsingUtil.parseHttpRequest(req);
+        RequestExecutionResultDTO resultDTO = new RequestExecutionResultDTO(requestDTO);
 
         Object ret;
+
+        RequestProcessingService.getInstance().notifyRequestStarted(requestDTO);
 
         try {
             ret = joinPoint.proceed();
         }
         catch (RuntimeException e) {
-            requestFinishDTO.setRuntimeException(e);
+            resultDTO.setRuntimeException(e);
             throw e;
-        }
-        catch (IOException e) {
-            requestFinishDTO.setIoException(e);
+        } catch (IOException e) {
+            resultDTO.setIOException(e);
             throw e;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
 
-            // TODO : ADD SERVLET EXCEPTION INHERITED CLASSES
-            if(e.getClass().getCanonicalName().equals("javax.servlet.ServletException")) {
-                requestFinishDTO.setServletException(e);
+            if(HttpRequestParsingUtil.isServletException(e.getClass().getCanonicalName())) {
+                resultDTO.setServletException(e);
             }
             else
-                requestFinishDTO.setOtherException(e);
+                resultDTO.setOtherException(e);
 
             throw e;
 
         }
         finally {
-            requestFinishDTO.setUri(uri);
-            requestFinishDTO.setDuration(System.nanoTime() - startTime);
-            RequestURIProducerService.getInstance().notifyRequestFinished(requestFinishDTO);
+            resultDTO.setDuration(System.nanoTime() - startTime);
+            RequestProcessingService.getInstance().notifyRequestFinished(resultDTO);
         }
 
         return ret;
