@@ -8,9 +8,9 @@ import net.anotheria.moskito.core.predefined.FilterStats;
 import net.anotheria.moskito.core.predefined.FilterStatsFactory;
 import net.anotheria.moskito.core.registry.ProducerRegistryFactory;
 import org.moskito.javaagent.request.RequestListener;
+import org.moskito.javaagent.request.RequestResultData;
 import org.moskito.javaagent.request.config.RequestListenerConfiguration;
-import org.moskito.javaagent.request.dto.RequestDTO;
-import org.moskito.javaagent.request.dto.RequestExecutionResultDTO;
+import org.moskito.javaagent.request.wrappers.HttpRequestWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * Has protected constructor to fill producer data (id, category, subsystem).
  * Contains defined methods of {@link RequestListener} that
  * fills {@link FilterStats} metrics.
- * Has abstract method {@link AbstractProducerListener#getStatsNameFromRequest(RequestDTO)}
+ * Has abstract method {@link AbstractProducerListener#getStatsNameFromRequest(HttpRequestWrapper)}
  * to obtain statistic for given request.
  */
 public abstract class AbstractProducerListener implements RequestListener {
@@ -76,34 +76,28 @@ public abstract class AbstractProducerListener implements RequestListener {
      * Should return name for stats object
      * associated with given request.
      *
-     * @param requestDTO request data to get stats name
+     * @param httpRequestWrapper request data to get stats name
      * @return name of statistics for given request
      */
-    protected abstract String getStatsNameFromRequest(RequestDTO requestDTO);
+    protected abstract String getStatsNameFromRequest(HttpRequestWrapper httpRequestWrapper);
 
-    /**
-     * Fills given stats object
-     * with data from given request data object
-     * @param stats stats to fill
-     * @param resultDTO source of data
-     */
-    private void fillStatisticsAfterRequest(FilterStats stats, RequestExecutionResultDTO resultDTO) {
+    private void fillStatisticsAfterRequest(FilterStats stats, RequestResultData resultData) {
 
-        stats.addExecutionTime(resultDTO.getDuration());
+        stats.addExecutionTime(resultData.getDuration());
 
-        switch (resultDTO.getExceptionKind()) {
+        switch (resultData.getExceptionKind()) {
 
             case IO:
-                stats.notifyIOException(resultDTO.getException());
+                stats.notifyIOException(resultData.getException());
                 break;
             case SERVLET:
-                stats.notifyServletException(resultDTO.getException());
+                stats.notifyServletException(resultData.getException());
                 break;
             case RUNTIME:
-                stats.notifyRuntimeException(resultDTO.getException());
+                stats.notifyRuntimeException(resultData.getException());
                 break;
-            case OTHER:
-                stats.notifyError(resultDTO.getException());
+            case ERROR:
+                stats.notifyError(resultData.getException());
                 break;
             case NONE:
 
@@ -115,11 +109,11 @@ public abstract class AbstractProducerListener implements RequestListener {
 
     /**
      * Adds request to default and request-specific stats
-     * @param requestDTO http request data
+     * @param httpRequestWrapper http request data
      */
-    public void onRequestStart(RequestDTO requestDTO) {
+    public void onRequestStart(HttpRequestWrapper httpRequestWrapper) {
 
-        String statsName = getStatsNameFromRequest(requestDTO);
+        String statsName = getStatsNameFromRequest(httpRequestWrapper);
 
         if(statsName == null) {
             log.warn("Failed to obtain stats name for " + producer.getProducerId() + " producer.");
@@ -138,24 +132,20 @@ public abstract class AbstractProducerListener implements RequestListener {
 
     }
 
-    /**
-     * Writes execution time and error statistics to producer
-     * using given request data.
-     * @param resultDTO http request resulting data
-     */
-    public void onRequestFinished(RequestExecutionResultDTO resultDTO) {
 
-        String statsName = getStatsNameFromRequest(resultDTO);
+    public void onRequestFinished(HttpRequestWrapper httpRequestWrapper, RequestResultData resultData) {
+
+        String statsName = getStatsNameFromRequest(httpRequestWrapper);
 
         if(statsName == null) {
             log.warn("Failed to obtain stats name for " + producer.getProducerId() + " producer.");
             return;
         }
 
-        fillStatisticsAfterRequest(producer.getDefaultStats(), resultDTO);
+        fillStatisticsAfterRequest(producer.getDefaultStats(), resultData);
 
         try {
-            fillStatisticsAfterRequest(producer.getStats(statsName), resultDTO);
+            fillStatisticsAfterRequest(producer.getStats(statsName), resultData);
         } catch (OnDemandStatsProducerException e) {
             log.debug(
                     "Failed to process data for " + producer.getProducerId() + " producer. Stats amount limit reached"

@@ -1,8 +1,7 @@
 package org.moskito.javaagent.request;
 
 import org.moskito.javaagent.request.config.RequestListenerConfiguration;
-import org.moskito.javaagent.request.dto.RequestDTO;
-import org.moskito.javaagent.request.dto.RequestExecutionResultDTO;
+import org.moskito.javaagent.request.wrappers.HttpRequestWrapper;
 
 /**
  * Interface for listeners that will monitor
@@ -12,17 +11,11 @@ import org.moskito.javaagent.request.dto.RequestExecutionResultDTO;
  */
 public interface RequestListener {
 
-    /**
-     * Called on incoming http request
-     * @param startDTO incoming request data
-     */
-    void onRequestStart(RequestDTO startDTO);
 
-    /**
-     * Called when http request is finished
-     * @param finishDTO finished request data
-     */
-    void onRequestFinished(RequestExecutionResultDTO finishDTO);
+    void onRequestStart(HttpRequestWrapper request);
+
+
+    void onRequestFinished(HttpRequestWrapper request, RequestResultData resultData);
 
     /**
      * Configure listener.

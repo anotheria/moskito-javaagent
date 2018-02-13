@@ -5,17 +5,22 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.moskito.javaagent.request.RequestProcessingService;
-import org.moskito.javaagent.request.dto.RequestDTO;
-import org.moskito.javaagent.request.dto.RequestExecutionResultDTO;
-import org.moskito.javaagent.util.HttpRequestParsingUtil;
+import org.moskito.javaagent.request.RequestResultData;
+import org.moskito.javaagent.request.wrappers.HttpRequestWrapper;
+import org.moskito.javaagent.request.wrappers.impl.StandardHttpRequestWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Aspect for collecting tomcat http requests statistics
  */
 @Aspect
 public abstract class TomcatRequestInterceptionAspect {
+
+    private static final Logger log = LoggerFactory.getLogger(TomcatRequestInterceptionAspect.class);
 
     /**
      * Name of class that contain current interception point
@@ -29,6 +34,13 @@ public abstract class TomcatRequestInterceptionAspect {
     @Pointcut()
     abstract void configurationInjectionMethods();
 
+    public static boolean isServletException(String exceptionClassName) {
+
+        return exceptionClassName.equals("javax.servlet.ServletException") ||
+                exceptionClassName.equals("javax.servlet.UnavailableException") ||
+                exceptionClassName.equals("org.apache.jasper.JasperException");
+
+    }
 
     /**
      * Cuts around org.apache.catalina.core.StandardContextValve.invoke(Request, Response)
@@ -40,42 +52,48 @@ public abstract class TomcatRequestInterceptionAspect {
     @Around(value = "configurationInjectionMethods()")
     public Object editTomcatConfiguration(ProceedingJoinPoint joinPoint) throws Throwable {
 
-        // Instance of org.apache.catalina.connector.Request
+        // Should be instance of org.apache.catalina.connector.Request
         // that implements javax.servlet.http.HttpServletRequest
-        Object req =  joinPoint.getArgs()[0];
-
+        Object httpRequest =  joinPoint.getArgs()[0];
         long startTime = System.nanoTime();
-
-        RequestDTO requestDTO = HttpRequestParsingUtil.parseHttpRequest(req);
-        RequestExecutionResultDTO resultDTO = new RequestExecutionResultDTO(requestDTO);
-
+        HttpRequestWrapper requestWrapper;
+        RequestResultData resultData = new RequestResultData();
         Object ret;
 
-        RequestProcessingService.getInstance().notifyRequestStarted(requestDTO);
+        try {
+            requestWrapper = new StandardHttpRequestWrapper(httpRequest);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException  e) {
+            log.warn("Failed to intercept http request", e);
+            return joinPoint.proceed();
+        }
+
+        RequestProcessingService.getInstance().notifyRequestStarted(requestWrapper);
 
         try {
             ret = joinPoint.proceed();
         }
         catch (RuntimeException e) {
-            resultDTO.setRuntimeException(e);
+            resultData.setRuntimeException(e);
             throw e;
         } catch (IOException e) {
-            resultDTO.setIOException(e);
+            resultData.setIOException(e);
             throw e;
+        }
+        catch (Error err) {
+            resultData.setError(err);
+            throw err;
         } catch (Exception e) {
 
-            if(HttpRequestParsingUtil.isServletException(e.getClass().getCanonicalName())) {
-                resultDTO.setServletException(e);
+            if(isServletException(e.getClass().getCanonicalName())) {
+                resultData.setServletException(e);
             }
-            else
-                resultDTO.setOtherException(e);
 
             throw e;
 
         }
         finally {
-            resultDTO.setDuration(System.nanoTime() - startTime);
-            RequestProcessingService.getInstance().notifyRequestFinished(resultDTO);
+            resultData.setDuration(System.nanoTime() - startTime);
+            RequestProcessingService.getInstance().notifyRequestFinished(requestWrapper, resultData);
         }
 
         return ret;

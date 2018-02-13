@@ -1,6 +1,6 @@
 package org.moskito.javaagent.request.producers;
 
-import org.moskito.javaagent.request.dto.RequestDTO;
+import org.moskito.javaagent.request.wrappers.HttpRequestWrapper;
 
 /**
  * Listener for http methods producer with http methods as statistics unit
@@ -12,8 +12,8 @@ public class MethodListener extends AbstractProducerListener {
     }
 
     @Override
-    protected String getStatsNameFromRequest(RequestDTO requestDTO) {
-        return requestDTO.getMethod();
+    protected String getStatsNameFromRequest(HttpRequestWrapper httpRequestWrapper) {
+        return httpRequestWrapper.getMethod();
     }
 
 }

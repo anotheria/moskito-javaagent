@@ -1,6 +1,6 @@
 package org.moskito.javaagent.request.producers;
 
-import org.moskito.javaagent.request.dto.RequestDTO;
+import org.moskito.javaagent.request.wrappers.HttpRequestWrapper;
 
 /**
  * Listener for domain producer with domain name as statistics unit
@@ -12,8 +12,8 @@ public class DomainListener extends AbstractProducerListener {
     }
 
     @Override
-    protected String getStatsNameFromRequest(RequestDTO requestDTO) {
-        return requestDTO.getDomain();
+    protected String getStatsNameFromRequest(HttpRequestWrapper httpRequestWrapper) {
+        return httpRequestWrapper.getDomain();
     }
 
 }

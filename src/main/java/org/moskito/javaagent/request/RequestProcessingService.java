@@ -4,9 +4,8 @@ import net.anotheria.moskito.core.config.MoskitoConfigurationHolder;
 import net.anotheria.moskito.core.config.filter.FilterConfig;
 import org.moskito.javaagent.config.JavaAgentConfig;
 import org.moskito.javaagent.request.config.RequestListenerConfiguration;
-import org.moskito.javaagent.request.dto.RequestDTO;
-import org.moskito.javaagent.request.dto.RequestExecutionResultDTO;
 import org.moskito.javaagent.request.producers.*;
+import org.moskito.javaagent.request.wrappers.HttpRequestWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,24 +100,16 @@ public class RequestProcessingService {
         return INSTANCE;
     }
 
-    /**
-     * Notifies listeners that new request started
-     *
-     * @param requestDTO new request data
-     */
-    public void notifyRequestStarted(RequestDTO requestDTO) {
+
+    public void notifyRequestStarted(HttpRequestWrapper httpRequestWrapper) {
         for (RequestListener listener : interceptionListeners)
-            listener.onRequestStart(requestDTO);
+            listener.onRequestStart(httpRequestWrapper);
     }
 
-    /**
-     * Notifies listener that request finished
-     *
-     * @param resultDTO finished request data
-     */
-    public void notifyRequestFinished(RequestExecutionResultDTO resultDTO) {
+
+    public void notifyRequestFinished(HttpRequestWrapper httpRequestWrapper, RequestResultData resultData) {
         for (RequestListener listener : interceptionListeners)
-            listener.onRequestFinished(resultDTO);
+            listener.onRequestFinished(httpRequestWrapper, resultData);
     }
 
 }
