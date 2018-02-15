@@ -83,11 +83,11 @@ public class RequestResultData {
          */
         RUNTIME,
         /**
-         * {@link java.lang.Error} and it subclasses
+         * {@link java.lang.RuntimeException} and it subclasses
          */
         ERROR,
         /**
-         * No any exceptions are thrown
+         * No any exception
          */
         NONE
 

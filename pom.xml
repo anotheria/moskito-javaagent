@@ -204,6 +204,10 @@
                     <groupId>net.anotheria</groupId>
                 </exclusion>
                 <exclusion>
+                    <artifactId>moskito-web</artifactId>
+                    <groupId>net.anotheria</groupId>
+                </exclusion>
+                <exclusion>
                     <artifactId>slf4j-api</artifactId>
                     <groupId>org.slf4j</groupId>
                 </exclusion>
