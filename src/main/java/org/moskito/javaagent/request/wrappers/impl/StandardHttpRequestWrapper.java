@@ -54,6 +54,19 @@ public class StandardHttpRequestWrapper implements HttpRequestWrapper {
      */
     private Method getAttributeMethod;
     /**
+     * {@link javax.servlet.http.HttpServletRequest#getQueryString()}
+     */
+    private Method getQueryStringMethod;
+    /**
+     * {@link javax.servlet.http.HttpServletRequest#getPathInfo()}
+     */
+    private Method getPathInfoMethod;
+    /**
+     * {@link javax.servlet.http.HttpServletRequest#getServletPath()}
+     */
+    private Method getServletPathMethod;
+
+    /**
      * Instance of session wrapper associated with this request
      */
     private StandardHttpSessionWrapper session;
@@ -81,6 +94,9 @@ public class StandardHttpRequestWrapper implements HttpRequestWrapper {
         this.getSessionMethod = httpRequestClass.getMethod("getSession", boolean.class);
         this.getRemoteAddrMethod = httpRequestClass.getMethod("getRemoteAddr");
         this.getAttributeMethod = httpRequestClass.getMethod("getAttribute", String.class);
+        this.getQueryStringMethod = httpRequestClass.getMethod("getQueryString");
+        this.getPathInfoMethod = httpRequestClass.getMethod("getPathInfo");
+        this.getServletPathMethod = httpRequestClass.getMethod("getServletPath");
 
     }
 
@@ -172,6 +188,36 @@ public class StandardHttpRequestWrapper implements HttpRequestWrapper {
     public Object getAttribute(String name) {
         try {
             return getAttributeMethod.invoke(httpRequest, name);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            log.warn("Failed to receive data from http request", e);
+            return null;
+        }
+    }
+
+    @Override
+    public String getQueryString() {
+        try {
+            return (String) getQueryStringMethod.invoke(httpRequest);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            log.warn("Failed to receive data from http request", e);
+            return null;
+        }
+    }
+
+    @Override
+    public String getPathInfo() {
+        try {
+            return (String) getPathInfoMethod.invoke(httpRequest);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            log.warn("Failed to receive data from http request", e);
+            return null;
+        }
+    }
+
+    @Override
+    public String getServletPath() {
+        try {
+            return (String) getServletPathMethod.invoke(httpRequest);
         } catch (IllegalAccessException | InvocationTargetException e) {
             log.warn("Failed to receive data from http request", e);
             return null;

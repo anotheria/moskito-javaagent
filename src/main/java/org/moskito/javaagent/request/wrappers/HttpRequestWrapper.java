@@ -81,4 +81,22 @@ public interface HttpRequestWrapper {
      */
     Object getAttribute(String name);
 
+    /**
+     * @return GET query string of request
+     * May return null in case of wrapper initialization error
+     */
+    String getQueryString();
+
+    /**
+     * @return server path part of request
+     * May return null in case of wrapper initialization error
+     */
+    String getPathInfo();
+
+    /**
+     * @return servlet path of request
+     * May return null in case of wrapper initialization error
+     */
+    String getServletPath();
+
 }

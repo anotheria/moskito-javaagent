@@ -17,6 +17,9 @@ import org.moskito.javaagent.request.wrappers.HttpSessionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Listener for setting up and recording journeys
+ */
 public class JourneyListener implements RequestListener {
 
     private static final Logger log = LoggerFactory.getLogger(JourneyListener.class);
@@ -40,6 +43,12 @@ public class JourneyListener implements RequestListener {
      */
     private static final String PARAM_VALUE_STOP = "stop";
 
+    /**
+     * Returns current journey record from given request session
+     * @param request request to extract journey record
+     * @return record of currently running journey or
+     *         null if there is no active journey present
+     */
     private JourneyRecord getCurrentJourneyRecord(HttpRequestWrapper request) {
 
         HttpSessionWrapper session = request.getSession(false);
@@ -51,10 +60,10 @@ public class JourneyListener implements RequestListener {
 
     }
 
-    private void startJourneyRecording(String callName) {
-        RunningTraceContainer.startTracedCall(callName);
-    }
-
+    /**
+     * Stops tracing and returns resulting traced call
+     * @return traced call of current request
+     */
     private CurrentlyTracedCall endJourneyRecording() {
 
         TracedCall last = RunningTraceContainer.endTrace();
@@ -71,14 +80,6 @@ public class JourneyListener implements RequestListener {
 
     }
 
-    private void stopJourney(JourneyRecord record) {
-        try {
-
-            journeyManager.getJourney(record.getName()).setActive(false);
-        } catch (NoSuchJourneyException ignore) {
-
-        }
-    }
 
     private void startJourney(JourneyRecord record) {
 
@@ -100,12 +101,26 @@ public class JourneyListener implements RequestListener {
             switch (journeyCommandFromParameter) {
 
                 case PARAM_VALUE_STOP:
-                    stopJourney(new JourneyRecord(journeyNameFromParameter));
+
+                    try {
+                        journeyManager.getJourney(journeyNameFromParameter).setActive(false);
+                    } catch (NoSuchJourneyException ignore) {}
+
+                    HttpSessionWrapper session = request.getSession(false);
+                    if(session != null) {
+                        JourneyRecord currentRecord = ((JourneyRecord) session.getAttribute(SA_JOURNEY_RECORD));
+                        if(currentRecord != null && currentRecord.getName().equals(journeyNameFromParameter))
+                        session.setAttribute(SA_JOURNEY_RECORD, null);
+                    }
                     break;
+
+
                 case PARAM_VALUE_START:
+
                     journeyStartedFromParams = true;
                     JourneyRecord record = new JourneyRecord(journeyNameFromParameter);
-                    startJourney(record);
+                    Journey journey = journeyManager.getOrCreateJourney(record.getName());
+                    journey.setActive(true);
                     request.getSession().setAttribute(SA_JOURNEY_RECORD, record);
 
             }
@@ -119,9 +134,12 @@ public class JourneyListener implements RequestListener {
         JourneyRecord currentJourneyRecord = getCurrentJourneyRecord(request);
 
         if(currentJourneyRecord != null) {
-            String url = request.getDomain();
-            // todo : build full url
-            startJourneyRecording(currentJourneyRecord.getName() + "-" + url);
+            String url = request.getServletPath();
+            if (request.getPathInfo() != null)
+                url += request.getPathInfo();
+            if (request.getQueryString() != null)
+                url += '?' + request.getQueryString();
+            RunningTraceContainer.startTracedCall(currentJourneyRecord.getName() + "-" + url);
         }
 
     }
