@@ -111,7 +111,7 @@ public abstract class AbstractProducerListener implements RequestListener {
      * Adds request to default and request-specific stats
      * @param httpRequestWrapper http request data
      */
-    public void onRequestStart(HttpRequestWrapper httpRequestWrapper) {
+    public void onRequestStarted(HttpRequestWrapper httpRequestWrapper) {
 
         String statsName = getStatsNameFromRequest(httpRequestWrapper);
 

@@ -34,7 +34,8 @@ public abstract class TomcatRequestInterceptionAspect {
     @Pointcut()
     abstract void configurationInjectionMethods();
 
-    public static boolean isServletException(String exceptionClassName) {
+    
+    private static boolean isServletException(String exceptionClassName) {
 
         return exceptionClassName.equals("javax.servlet.ServletException") ||
                 exceptionClassName.equals("javax.servlet.UnavailableException") ||

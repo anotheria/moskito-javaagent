@@ -5,9 +5,9 @@ import org.moskito.javaagent.request.wrappers.HttpRequestWrapper;
 /**
  * Listener for user agent producer with client user agent as statistics unit
  */
-public class UserAgentListener extends AbstractProducerListener {
+public class UserAgentProducerListener extends AbstractProducerListener {
 
-    public UserAgentListener() {
+    public UserAgentProducerListener() {
         super("UserAgent", "filter", "default");
     }
 

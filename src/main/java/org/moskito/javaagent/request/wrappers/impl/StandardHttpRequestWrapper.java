@@ -2,11 +2,15 @@ package org.moskito.javaagent.request.wrappers.impl;
 
 import org.moskito.javaagent.request.wrappers.HttpRequestWrapper;
 import org.moskito.javaagent.request.wrappers.HttpSessionWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class StandardHttpRequestWrapper implements HttpRequestWrapper {
+
+    private static final Logger log = LoggerFactory.getLogger(StandardHttpRequestWrapper.class);
 
     private Object httpRequest;
 
@@ -14,6 +18,11 @@ public class StandardHttpRequestWrapper implements HttpRequestWrapper {
     private Method getDomainMethod;
     private Method getHttpMethodMethod;
     private Method getHeaderMethod;
+    private Method getParameterMethod;
+    private Method getSessionMethod;
+    private Method getRemoteAddrMethod;
+    private Method getAttributeMethod;
+
     private StandardHttpSessionWrapper session;
 
     public StandardHttpRequestWrapper(Object httpRequest)
@@ -27,9 +36,10 @@ public class StandardHttpRequestWrapper implements HttpRequestWrapper {
         this.getDomainMethod = httpRequestClass.getMethod("getServerName");
         this.getHttpMethodMethod = httpRequestClass.getMethod("getMethod");
         this.getHeaderMethod = httpRequestClass.getMethod("getHeader", String.class);
-
-        this.session =
-                new StandardHttpSessionWrapper(httpRequestClass.getMethod("getSession").invoke(httpRequest));
+        this.getParameterMethod = httpRequestClass.getMethod("getParameter", String.class);
+        this.getSessionMethod = httpRequestClass.getMethod("getSession", boolean.class);
+        this.getRemoteAddrMethod = httpRequestClass.getMethod("getRemoteAddr");
+        this.getAttributeMethod = httpRequestClass.getMethod("getAttribute", String.class);
 
     }
 
@@ -38,9 +48,8 @@ public class StandardHttpRequestWrapper implements HttpRequestWrapper {
         try {
             return (String) getUriMethod.invoke(httpRequest);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
+            log.warn("Failed to receive data from http request", e);
             return null;
-            // TODO : LOG IT
         }
     }
 
@@ -49,9 +58,8 @@ public class StandardHttpRequestWrapper implements HttpRequestWrapper {
         try {
             return (String) getHttpMethodMethod.invoke(httpRequest);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
+            log.warn("Failed to receive data from http request", e);
             return null;
-            // TODO : LOG IT
         }
     }
 
@@ -60,15 +68,33 @@ public class StandardHttpRequestWrapper implements HttpRequestWrapper {
         try {
             return (String) getDomainMethod.invoke(httpRequest);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
+            log.warn("Failed to receive data from http request", e);
             return null;
-            // TODO : LOG IT
         }
     }
 
     @Override
     public HttpSessionWrapper getSession() {
+        return getSession(true);
+    }
+
+    @Override
+    public HttpSessionWrapper getSession(boolean create) {
+
+        if(session == null) {
+            try {
+
+                Object sessionObject = getSessionMethod.invoke(httpRequest, create);
+                if(sessionObject != null)
+                    session = new StandardHttpSessionWrapper(sessionObject);
+
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                log.warn("Failed to receive data from http request", e);
+            }
+        }
+
         return session;
+
     }
 
     @Override
@@ -76,9 +102,38 @@ public class StandardHttpRequestWrapper implements HttpRequestWrapper {
         try {
             return (String) getHeaderMethod.invoke(httpRequest, headerName);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
+            log.warn("Failed to receive data from http request", e);
             return null;
-            // TODO : LOG IT
+        }
+    }
+
+    @Override
+    public String getParameter(String name) {
+        try {
+            return (String) getParameterMethod.invoke(httpRequest, name);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            log.warn("Failed to receive data from http request", e);
+            return null;
+        }
+    }
+
+    @Override
+    public String getRemoteAddr() {
+        try {
+            return (String) getRemoteAddrMethod.invoke(httpRequest);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            log.warn("Failed to receive data from http request", e);
+            return null;
+        }
+    }
+
+    @Override
+    public Object getAttribute(String name) {
+        try {
+            return getAttributeMethod.invoke(httpRequest, name);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            log.warn("Failed to receive data from http request", e);
+            return null;
         }
     }
 

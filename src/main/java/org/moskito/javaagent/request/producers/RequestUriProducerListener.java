@@ -5,14 +5,14 @@ import org.moskito.javaagent.request.wrappers.HttpRequestWrapper;
 /**
  * Listener for request uri producer with requested uri as statistics unit
  */
-public class RequestUriListener extends AbstractProducerListener {
+public class RequestUriProducerListener extends AbstractProducerListener {
 
     /**
      * Limit for the url length.
      */
     private static final int URI_LIMIT = 80;
 
-    public RequestUriListener() {
+    public RequestUriProducerListener() {
         super("RequestURI", "filter", "default");
     }
 

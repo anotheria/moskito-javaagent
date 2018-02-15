@@ -5,9 +5,9 @@ import org.moskito.javaagent.request.wrappers.HttpRequestWrapper;
 /**
  * Listener for http methods producer with http methods as statistics unit
  */
-public class MethodListener extends AbstractProducerListener {
+public class MethodProducerListener extends AbstractProducerListener {
 
-    public MethodListener() {
+    public MethodProducerListener() {
         super("Method", "filter", "default");
     }
 

@@ -12,7 +12,7 @@ import org.moskito.javaagent.request.wrappers.HttpRequestWrapper;
 public interface RequestListener {
 
 
-    void onRequestStart(HttpRequestWrapper request);
+    void onRequestStarted(HttpRequestWrapper request);
 
 
     void onRequestFinished(HttpRequestWrapper request, RequestResultData resultData);

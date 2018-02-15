@@ -6,6 +6,10 @@ public interface HttpRequestWrapper {
     String getMethod();
     String getDomain();
     HttpSessionWrapper getSession();
+    HttpSessionWrapper getSession(boolean create);
     String getHeader(String headerName);
+    String getParameter(String name);
+    String getRemoteAddr();
+    Object getAttribute(String name);
 
 }

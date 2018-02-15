@@ -5,9 +5,9 @@ import org.moskito.javaagent.request.wrappers.HttpRequestWrapper;
 /**
  * Listener for domain producer with domain name as statistics unit
  */
-public class DomainListener extends AbstractProducerListener {
+public class DomainProducerListener extends AbstractProducerListener {
 
-    public DomainListener() {
+    public DomainProducerListener() {
         super("Domain", "filter", "default");
     }
 

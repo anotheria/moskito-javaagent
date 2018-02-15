@@ -5,7 +5,7 @@ import org.moskito.javaagent.request.wrappers.HttpRequestWrapper;
 /**
  * Listener for referrer producer with http client referrer uri as statistics unit
  */
-public class ReferrerListener extends AbstractProducerListener {
+public class ReferrerProducerListener extends AbstractProducerListener {
 
     /**
      * Constant for http.
@@ -21,7 +21,7 @@ public class ReferrerListener extends AbstractProducerListener {
      */
     private static final int URI_LIMIT = 80;
 
-    public ReferrerListener() {
+    public ReferrerProducerListener() {
         super("Referrer", "filter", "default");
     }
 

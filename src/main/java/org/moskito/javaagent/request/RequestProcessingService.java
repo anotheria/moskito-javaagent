@@ -4,6 +4,8 @@ import net.anotheria.moskito.core.config.MoskitoConfigurationHolder;
 import net.anotheria.moskito.core.config.filter.FilterConfig;
 import org.moskito.javaagent.config.JavaAgentConfig;
 import org.moskito.javaagent.request.config.RequestListenerConfiguration;
+import org.moskito.javaagent.request.journey.JourneyListener;
+import org.moskito.javaagent.request.journey.TagsListener;
 import org.moskito.javaagent.request.producers.*;
 import org.moskito.javaagent.request.wrappers.HttpRequestWrapper;
 import org.slf4j.Logger;
@@ -45,24 +47,29 @@ public class RequestProcessingService {
     private void initCaseExtractorsAliases() {
         caseExtractorsAndRequestListenersAliases.put(
                 "net.anotheria.moskito.web.filters.caseextractor.RequestURICaseExtractor",
-                RequestUriListener.class
+                RequestUriProducerListener.class
         );
         caseExtractorsAndRequestListenersAliases.put(
                 "net.anotheria.moskito.web.filters.caseextractor.RefererCaseExtractor",
-                ReferrerListener.class
+                ReferrerProducerListener.class
         );
         caseExtractorsAndRequestListenersAliases.put(
                 "net.anotheria.moskito.web.filters.caseextractor.MethodCaseExtractor",
-                MethodListener.class
+                MethodProducerListener.class
         );
         caseExtractorsAndRequestListenersAliases.put(
                 "net.anotheria.moskito.web.filters.caseextractor.UserAgentCaseExtractor",
-                UserAgentListener.class
+                UserAgentProducerListener.class
         );
         caseExtractorsAndRequestListenersAliases.put(
                 "net.anotheria.moskito.web.filters.caseextractor.DomainCaseExtractor",
-                DomainListener.class
+                DomainProducerListener.class
         );
+    }
+
+    private void initListener(RequestListener listener, RequestListenerConfiguration configuration) {
+        listener.configure(configuration);
+        interceptionListeners.add(listener);
     }
 
     /**
@@ -79,14 +86,16 @@ public class RequestProcessingService {
         RequestListenerConfiguration conf = new RequestListenerConfiguration();
         conf.setProducersStatsLimit(JavaAgentConfig.getInstance().getRequestStatsLimit());
 
+        initListener(new JourneyListener(), conf);
+        initListener(new TagsListener(), conf);
+
         for (String caseExtractorName : filterConfig.getCaseExtractors()) {
 
             if(caseExtractorsAndRequestListenersAliases.containsKey(caseExtractorName)) {
                 try {
                     RequestListener listener = caseExtractorsAndRequestListenersAliases.get(caseExtractorName)
                             .newInstance();
-                    listener.configure(conf);
-                    interceptionListeners.add(listener);
+                    initListener(listener, conf);
                 } catch (InstantiationException | IllegalAccessException e) {
                     log.error("Failed to instantiate listener. Case extractor aliases is corrupted", e);
                 }
@@ -103,7 +112,7 @@ public class RequestProcessingService {
 
     public void notifyRequestStarted(HttpRequestWrapper httpRequestWrapper) {
         for (RequestListener listener : interceptionListeners)
-            listener.onRequestStart(httpRequestWrapper);
+            listener.onRequestStarted(httpRequestWrapper);
     }
 
 
