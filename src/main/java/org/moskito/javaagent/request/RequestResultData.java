@@ -2,10 +2,30 @@ package org.moskito.javaagent.request;
 
 import java.io.IOException;
 
+/**
+ * Represents http request execution
+ * statistics data.
+ *
+ * Holds execution time and
+ * request execution error, if they present.
+ */
 public class RequestResultData {
 
+    /**
+     * Request duration in nanoseconds
+     */
     private long duration;
+
+    /**
+     * Exception that has been thrown out
+     * while executing the request
+     */
     private Throwable exception;
+
+    /**
+     * Type of thrown exception
+     * {@see {@link ExceptionKind}}
+     */
     private ExceptionKind exceptionKind = ExceptionKind.NONE;
 
     public long getDuration() {
@@ -44,12 +64,31 @@ public class RequestResultData {
         exceptionKind = ExceptionKind.ERROR;
     }
 
+    /**
+     * Represents type of exception
+     * that been thrown while processing request
+     */
     public enum ExceptionKind {
 
+        /**
+         * javax.servlet.ServletException and it subclasses
+         */
         SERVLET,
+        /**
+         * {@link java.io.IOException} and it subclasses
+         */
         IO,
+        /**
+         * {@link java.lang.RuntimeException} and it subclasses
+         */
         RUNTIME,
+        /**
+         * {@link java.lang.Error} and it subclasses
+         */
         ERROR,
+        /**
+         * No any exceptions are thrown
+         */
         NONE
 
     }

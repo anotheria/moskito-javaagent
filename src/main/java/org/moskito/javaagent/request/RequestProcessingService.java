@@ -67,6 +67,11 @@ public class RequestProcessingService {
         );
     }
 
+    /**
+     * Configures listener and adds it to listeners list
+     * @param listener instance of listener to add
+     * @param configuration listener configuration
+     */
     private void initListener(RequestListener listener, RequestListenerConfiguration configuration) {
         listener.configure(configuration);
         interceptionListeners.add(listener);
@@ -89,6 +94,7 @@ public class RequestProcessingService {
         initListener(new JourneyListener(), conf);
         initListener(new TagsListener(), conf);
 
+        // Adding listeners according to case extractors configuration in filter config
         for (String caseExtractorName : filterConfig.getCaseExtractors()) {
 
             if(caseExtractorsAndRequestListenersAliases.containsKey(caseExtractorName)) {
@@ -109,13 +115,20 @@ public class RequestProcessingService {
         return INSTANCE;
     }
 
-
+    /**
+     * Notifies listeners that new http request started
+     * @param httpRequestWrapper http request data
+     */
     public void notifyRequestStarted(HttpRequestWrapper httpRequestWrapper) {
         for (RequestListener listener : interceptionListeners)
             listener.onRequestStarted(httpRequestWrapper);
     }
 
-
+    /**
+     * Notifies listeners that http request been finished
+     * @param httpRequestWrapper http request data
+     * @param resultData resulting data of request
+     */
     public void notifyRequestFinished(HttpRequestWrapper httpRequestWrapper, RequestResultData resultData) {
         for (RequestListener listener : interceptionListeners)
             listener.onRequestFinished(httpRequestWrapper, resultData);

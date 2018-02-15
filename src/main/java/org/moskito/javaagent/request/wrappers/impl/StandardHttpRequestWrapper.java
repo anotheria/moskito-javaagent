@@ -8,23 +8,64 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+/**
+ * Wrapper implementation that takes instance of {@link javax.servlet.http.HttpServletRequest}
+ * as constructor argument and provides interface methods implementations using reflection.
+ */
 public class StandardHttpRequestWrapper implements HttpRequestWrapper {
 
     private static final Logger log = LoggerFactory.getLogger(StandardHttpRequestWrapper.class);
 
+    /**
+     * Instance of {@link javax.servlet.http.HttpServletRequest} to wrap
+     */
     private Object httpRequest;
 
+    /**
+     * {@link javax.servlet.http.HttpServletRequest#getRequestURI()}
+     */
     private Method getUriMethod;
+    /**
+     * {@link javax.servlet.http.HttpServletRequest#getServerName()}
+     */
     private Method getDomainMethod;
+    /**
+     * {@link javax.servlet.http.HttpServletRequest#getMethod()}
+     */
     private Method getHttpMethodMethod;
+    /**
+     * {@link javax.servlet.http.HttpServletRequest#getHeader(String)}
+     */
     private Method getHeaderMethod;
+    /**
+     * {@link javax.servlet.http.HttpServletRequest#getParameter(String)}
+     */
     private Method getParameterMethod;
+    /**
+     * {@link javax.servlet.http.HttpServletRequest#getSession(boolean)}
+     */
     private Method getSessionMethod;
+    /**
+     * {@link javax.servlet.http.HttpServletRequest#getRemoteAddr()}
+     */
     private Method getRemoteAddrMethod;
+    /**
+     * {@link javax.servlet.http.HttpServletRequest#getAttribute(String)}
+     */
     private Method getAttributeMethod;
-
+    /**
+     * Instance of session wrapper associated with this request
+     */
     private StandardHttpSessionWrapper session;
 
+    /**
+     * Takes {@link javax.servlet.http.HttpServletRequest} instance
+     * as source of provided data.
+     * @param httpRequest instance {@link javax.servlet.http.HttpServletRequest} to wrap
+     * @throws NoSuchMethodException if given argument is not valid http request instance
+     * @throws InvocationTargetException if given argument is not valid http request instance
+     * @throws IllegalAccessException if given argument is not valid http request instance
+     */
     public StandardHttpRequestWrapper(Object httpRequest)
             throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 

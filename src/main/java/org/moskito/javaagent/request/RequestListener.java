@@ -11,10 +11,17 @@ import org.moskito.javaagent.request.wrappers.HttpRequestWrapper;
  */
 public interface RequestListener {
 
-
+    /**
+     * Called on incoming http request before it was executed
+     * @param request wrapper for request to extract data
+     */
     void onRequestStarted(HttpRequestWrapper request);
 
-
+    /**
+     * Called after http request execution
+     * @param request wrapper for request to extract data
+     * @param resultData request execution result data
+     */
     void onRequestFinished(HttpRequestWrapper request, RequestResultData resultData);
 
     /**

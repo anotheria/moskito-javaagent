@@ -34,12 +34,26 @@ public abstract class TomcatRequestInterceptionAspect {
     @Pointcut()
     abstract void configurationInjectionMethods();
 
-    
-    private static boolean isServletException(String exceptionClassName) {
+    /**
+     * Loads javax.servlet.ServletException class
+     * using given exception class loader to check
+     * is given exception is instance of servlet exception.
+     *
+     * @param exception exception to check
+     * @return true - given exception is instance of javax.servlet.ServletException
+     */
+    private static boolean isServletException(Exception exception) {
 
-        return exceptionClassName.equals("javax.servlet.ServletException") ||
-                exceptionClassName.equals("javax.servlet.UnavailableException") ||
-                exceptionClassName.equals("org.apache.jasper.JasperException");
+        try {
+            // javax.servlet.ServletException class should be available
+            // by using class loader of tomcat app instantiated exceptions
+            Class<?> servletExceptionClass = exception.getClass().getClassLoader()
+                    .loadClass("javax.servlet.ServletException");
+            return servletExceptionClass.isInstance(exception);
+        } catch (ClassNotFoundException e) {
+            log.warn("Failed to find servlet exception class using given exception class loader.", e);
+            return false;
+        }
 
     }
 
@@ -85,7 +99,8 @@ public abstract class TomcatRequestInterceptionAspect {
             throw err;
         } catch (Exception e) {
 
-            if(isServletException(e.getClass().getCanonicalName())) {
+            // ServletException direct catching is impossible due to servlet api is not available here
+            if(isServletException(e)) {
                 resultData.setServletException(e);
             }
 

@@ -12,6 +12,9 @@ import org.moskito.javaagent.request.config.RequestListenerConfiguration;
 import org.moskito.javaagent.request.wrappers.HttpRequestWrapper;
 import org.moskito.javaagent.request.wrappers.HttpSessionWrapper;
 
+/**
+ * Listener for inserting http-related tags to moskito context
+ */
 public class TagsListener implements RequestListener {
 
     private static final String TAG_IP = "ip";
