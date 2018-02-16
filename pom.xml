@@ -23,6 +23,7 @@
 
     <dependencyManagement>
         <dependencies>
+
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
@@ -188,11 +189,22 @@
     <dependencies>
 
         <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.moskito</groupId>
             <artifactId>moskito-control-agent-rmi-endpoint</artifactId>
             <exclusions>
                 <exclusion>
                     <artifactId>moskito-core</artifactId>
+                    <groupId>net.anotheria</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>moskito-web</artifactId>
                     <groupId>net.anotheria</groupId>
                 </exclusion>
                 <exclusion>
@@ -231,10 +243,7 @@
                     <artifactId>slf4j-api</artifactId>
                     <groupId>org.slf4j</groupId>
                 </exclusion>
-                <exclusion>
-                    <artifactId>moskito-web</artifactId>
-                    <groupId>net.anotheria</groupId>
-                </exclusion>
+
                 <exclusion>
                     <artifactId>javassist</artifactId>
                     <groupId>javassist</groupId>

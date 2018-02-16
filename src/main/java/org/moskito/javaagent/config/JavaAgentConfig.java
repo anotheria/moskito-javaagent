@@ -84,6 +84,14 @@ public class JavaAgentConfig {
 	 */
 	@Configure
 	private int moskitoBackendPort = 9450;
+
+	/**
+	 * Limit for http request producers stats amount
+	 * If value less than 0 it means that there is no limits
+	 */
+	@Configure
+	private int requestStatsLimit = 100;
+
 	/**
 	 * Class config inner clazzNameToConfigurationStorage.
 	 */
@@ -329,6 +337,14 @@ public class JavaAgentConfig {
 		sb.append(", moskitoBackendPort=").append(moskitoBackendPort);
 		sb.append('}');
 		return sb.toString();
+	}
+
+	public int getRequestStatsLimit() {
+		return requestStatsLimit;
+	}
+
+	public void setRequestStatsLimit(int requestStatsLimit) {
+		this.requestStatsLimit = requestStatsLimit;
 	}
 
 	/**

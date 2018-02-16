@@ -1,27 +1,27 @@
 package org.moskito.javaagent;
 
-import java.lang.reflect.InvocationTargetException;
-
+import net.anotheria.moskito.aop.aspect.AbstractMoskitoAspect;
 import net.anotheria.moskito.core.calltrace.*;
 import net.anotheria.moskito.core.context.MoSKitoContext;
+import net.anotheria.moskito.core.dynamic.IOnDemandStatsFactory;
+import net.anotheria.moskito.core.dynamic.OnDemandStatsProducer;
 import net.anotheria.moskito.core.journey.Journey;
 import net.anotheria.moskito.core.journey.JourneyManagerFactory;
+import net.anotheria.moskito.core.predefined.ServiceStats;
+import net.anotheria.moskito.core.predefined.ServiceStatsFactory;
 import net.anotheria.moskito.core.tracer.Trace;
 import net.anotheria.moskito.core.tracer.TracerRepository;
 import net.anotheria.moskito.core.tracer.Tracers;
-import org.moskito.javaagent.config.JavaAgentConfig;
-import net.anotheria.moskito.aop.aspect.AbstractMoskitoAspect;
-import net.anotheria.moskito.core.dynamic.IOnDemandStatsFactory;
-import net.anotheria.moskito.core.dynamic.OnDemandStatsProducer;
-import net.anotheria.moskito.core.predefined.ServiceStats;
-import net.anotheria.moskito.core.predefined.ServiceStatsFactory;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.moskito.javaagent.config.JavaAgentConfig;
 import org.moskito.javaagent.config.JavaAgentConfig.MonitoringClassConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Abstract aspect into which desired classes will be weaved, for further profiling/logging.
@@ -56,9 +56,9 @@ public abstract class LoadTimeMonitoringAspect extends AbstractMoskitoAspect<Ser
 	@Pointcut
 	abstract void monitoredMethod();
 
-
 	@Around (value = "monitoredMethod()")
 	public Object doProfilingMethod(final ProceedingJoinPoint pjp) throws Throwable {
+
 		final MonitoringClassConfig configuration = agentConfig.getMonitoringConfig(pjp.getSignature().getDeclaringTypeName());
 		if (configuration.isDefaultConfig()) {
 			return pjp.proceed();
