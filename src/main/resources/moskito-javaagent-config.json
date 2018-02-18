@@ -24,7 +24,23 @@
             "patterns": [".*Controller.*"],
             "subsystem": "default",
             "category": "web"
+        },
+        {
+          "patterns": [".*Servlet.*"],
+          "subsystem": "default",
+          "category": "web"
+        },
+        {
+          "patterns": [".*Action.*"],
+          "subsystem": "default",
+          "category": "web"
+        },
+        {
+          "patterns": [".*Filter.*"],
+          "subsystem": "default",
+          "category": "web"
         }
+
 
     ],
     "@monitoringClassConfig": [
