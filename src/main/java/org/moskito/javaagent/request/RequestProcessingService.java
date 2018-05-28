@@ -79,8 +79,7 @@ public class RequestProcessingService {
 
     /**
      * Configures listeners for filter producers
-     * using filter configuration
-     * {@see {@link FilterConfig}}
+     * using filter configuration.
      */
     public RequestProcessingService() {
 
