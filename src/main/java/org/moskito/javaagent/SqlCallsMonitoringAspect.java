@@ -193,7 +193,7 @@ public abstract class SqlCallsMonitoringAspect {
 		TracedCall aRunningTrace = RunningTraceContainer.getCurrentlyTracedCall();
 		CurrentlyTracedCall currentTrace = aRunningTrace.callTraced() ? (CurrentlyTracedCall) aRunningTrace : null;
 		if (currentTrace != null) {
-			TraceStep currentStep = currentTrace.startStep((isSuccess ? EMPTY : SQL_QUERY_FAILED) + "SQL : (' " + statement + "')", producer);
+			TraceStep currentStep = currentTrace.startStep((isSuccess ? EMPTY : SQL_QUERY_FAILED) + "SQL : (' " + statement + "')", producer, "sql");
 			if (!isSuccess)
 				currentStep.setAborted();
 			currentStep.setDuration(duration);

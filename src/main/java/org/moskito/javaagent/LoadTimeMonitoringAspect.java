@@ -155,7 +155,7 @@ public abstract class LoadTimeMonitoringAspect extends AbstractMoskitoAspect<Ser
 			}
 
 			call = TracingUtil.buildCall(producerId, methodName, args, Tracers.getCallName(trace));
-			currentStep = currentTrace.startStep(call.toString(), producer);
+			currentStep = currentTrace.startStep(call.toString(), producer, methodName);
 
 		}
 
