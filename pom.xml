@@ -8,13 +8,13 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>moskito-javaagent</artifactId>
-    <version>2.9.1-SNAPSHOT</version>
+    <version>2.10.0-SNAPSHOT</version>
     <name>moskito-javaagent</name>
     <packaging>jar</packaging>
 
     <properties>
         <jersey-version>1.17</jersey-version>
-        <moskito.version>2.9.0</moskito.version>
+        <moskito.version>2.10.0</moskito.version>
         <moskito.control.version>1.2.2</moskito.control.version>
         <slf4j.version>1.7.16</slf4j.version>
         <logback-classic.version>1.1.5</logback-classic.version>
@@ -74,13 +74,7 @@
             <dependency>
                 <groupId>net.anotheria</groupId>
                 <artifactId>ano-util</artifactId>
-                <version>2.1.8</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>blowfish</groupId>
-                        <artifactId>blowfish</artifactId>
-                    </exclusion>
-                </exclusions>
+                <version>2.2.0</version>
             </dependency>
             <dependency>
                 <groupId>net.anotheria</groupId>
