@@ -409,8 +409,8 @@
                                         <exclude>**/*.json</exclude>
 
                                         <!-- exclude signatures  -->
-                                        <exclude>META-INF/BCKEY.SF</exclude>
-                                        <exclude>META-INF/BCKEY.DSA</exclude>
+                                    <!--<exclude>META-INF/BCKEY.SF</exclude>-->
+                                    <!--<exclude>META-INF/BCKEY.DSA</exclude>-->
                                         <exclude>META-INF/*.SF</exclude>
                                         <exclude>META-INF/*.DSA</exclude>
                                         <exclude>META-INF/*.RSA</exclude>
