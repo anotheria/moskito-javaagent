@@ -399,6 +399,8 @@
                                     <excludes>
                                         <!-- exclude aop - as it placed into META-INF-->
                                         <exclude>aop.xml</exclude>
+                                        <exclude>META-INF/aop.xml</exclude>
+
                                         <!-- exclude m-k static resources-->
                                         <exclude>moskito/**</exclude>
                                         <!-- exclude logback - as it wil be provided from configuration/-->
