@@ -358,6 +358,7 @@
                                     </includes>
                                 </resource>
                             </resources>
+
                         </configuration>
                     </execution>
                     <execution>
@@ -414,7 +415,6 @@
                                         <exclude>META-INF/*.SF</exclude>
                                         <exclude>META-INF/*.DSA</exclude>
                                         <exclude>META-INF/*.RSA</exclude>
-
                                     </excludes>
                                 </filter>
                             </filters>
