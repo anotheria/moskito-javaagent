@@ -9,7 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * Wrapper implementation that takes instance of {@link javax.servlet.http.HttpServletRequest}
+ * Wrapper implementation that takes instance of {@link jakarta.servlet.http.HttpServletRequest}
  * as constructor argument and provides interface methods implementations using reflection.
  */
 public class StandardHttpRequestWrapper implements HttpRequestWrapper {
@@ -17,52 +17,52 @@ public class StandardHttpRequestWrapper implements HttpRequestWrapper {
     private static final Logger log = LoggerFactory.getLogger(StandardHttpRequestWrapper.class);
 
     /**
-     * Instance of {@link javax.servlet.http.HttpServletRequest} to wrap
+     * Instance of {@link jakarta.servlet.http.HttpServletRequest} to wrap
      */
     private Object httpRequest;
 
     /**
-     * {@link javax.servlet.http.HttpServletRequest#getRequestURI()}
+     * {@link jakarta.servlet.http.HttpServletRequest#getRequestURI()}
      */
     private Method getUriMethod;
     /**
-     * {@link javax.servlet.http.HttpServletRequest#getServerName()}
+     * {@link jakarta.servlet.http.HttpServletRequest#getServerName()}
      */
     private Method getDomainMethod;
     /**
-     * {@link javax.servlet.http.HttpServletRequest#getMethod()}
+     * {@link jakarta.servlet.http.HttpServletRequest#getMethod()}
      */
     private Method getHttpMethodMethod;
     /**
-     * {@link javax.servlet.http.HttpServletRequest#getHeader(String)}
+     * {@link jakarta.servlet.http.HttpServletRequest#getHeader(String)}
      */
     private Method getHeaderMethod;
     /**
-     * {@link javax.servlet.http.HttpServletRequest#getParameter(String)}
+     * {@link jakarta.servlet.http.HttpServletRequest#getParameter(String)}
      */
     private Method getParameterMethod;
     /**
-     * {@link javax.servlet.http.HttpServletRequest#getSession(boolean)}
+     * {@link jakarta.servlet.http.HttpServletRequest#getSession(boolean)}
      */
     private Method getSessionMethod;
     /**
-     * {@link javax.servlet.http.HttpServletRequest#getRemoteAddr()}
+     * {@link jakarta.servlet.http.HttpServletRequest#getRemoteAddr()}
      */
     private Method getRemoteAddrMethod;
     /**
-     * {@link javax.servlet.http.HttpServletRequest#getAttribute(String)}
+     * {@link jakarta.servlet.http.HttpServletRequest#getAttribute(String)}
      */
     private Method getAttributeMethod;
     /**
-     * {@link javax.servlet.http.HttpServletRequest#getQueryString()}
+     * {@link jakarta.servlet.http.HttpServletRequest#getQueryString()}
      */
     private Method getQueryStringMethod;
     /**
-     * {@link javax.servlet.http.HttpServletRequest#getPathInfo()}
+     * {@link jakarta.servlet.http.HttpServletRequest#getPathInfo()}
      */
     private Method getPathInfoMethod;
     /**
-     * {@link javax.servlet.http.HttpServletRequest#getServletPath()}
+     * {@link jakarta.servlet.http.HttpServletRequest#getServletPath()}
      */
     private Method getServletPathMethod;
 
@@ -72,9 +72,9 @@ public class StandardHttpRequestWrapper implements HttpRequestWrapper {
     private StandardHttpSessionWrapper session;
 
     /**
-     * Takes {@link javax.servlet.http.HttpServletRequest} instance
+     * Takes {@link jakarta.servlet.http.HttpServletRequest} instance
      * as source of provided data.
-     * @param httpRequest instance {@link javax.servlet.http.HttpServletRequest} to wrap
+     * @param httpRequest instance {@link jakarta.servlet.http.HttpServletRequest} to wrap
      * @throws NoSuchMethodException if given argument is not valid http request instance
      * @throws InvocationTargetException if given argument is not valid http request instance
      * @throws IllegalAccessException if given argument is not valid http request instance

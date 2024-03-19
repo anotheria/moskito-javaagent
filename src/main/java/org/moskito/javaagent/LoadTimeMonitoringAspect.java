@@ -134,7 +134,7 @@ public abstract class LoadTimeMonitoringAspect extends AbstractMoskitoAspect<Ser
 		TracerRepository tracerRepository = TracerRepository.getInstance();
 
 		boolean tracingRequired =
-				!context.hasTracerFired() && tracerRepository.isTracingEnabledForProducer(producerId);
+				!context.hasTracerFired() && tracerRepository.isTracingEnabledForProducer(producerId, methodName);
 		Trace trace = null;
 		boolean journeyStartedByCurrentStep = false;
 		StringBuilder call = null;
@@ -217,11 +217,11 @@ public abstract class LoadTimeMonitoringAspect extends AbstractMoskitoAspect<Ser
 				if (journeyStartedByCurrentStep) {
 					//now finish the journey.
 					Journey myJourney = JourneyManagerFactory.getJourneyManager().getOrCreateJourney(Tracers.getJourneyNameForTracers(producerId));
-					myJourney.addUseCase((CurrentlyTracedCall) RunningTraceContainer.endTrace());
+					myJourney.addCall((CurrentlyTracedCall) RunningTraceContainer.endTrace());
 					RunningTraceContainer.cleanup();
 				}
 
-				tracerRepository.addTracedExecution(producerId, trace);
+                tracerRepository.addTracedExecution(producerId, methodName, trace);
 
 			}
 

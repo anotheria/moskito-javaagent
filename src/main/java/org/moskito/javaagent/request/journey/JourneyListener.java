@@ -154,7 +154,7 @@ public class JourneyListener implements RequestListener {
             CurrentlyTracedCall tracedCall = endJourneyRecording();
 
             if(tracedCall != null) {
-                journeyManager.getOrCreateJourney(record.getName()).addUseCase(tracedCall);
+                journeyManager.getOrCreateJourney(record.getName()).addCall(tracedCall);
             }
 
         }

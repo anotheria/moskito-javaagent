@@ -71,7 +71,7 @@ public class RequestResultData {
     public enum ExceptionKind {
 
         /**
-         * javax.servlet.ServletException and it subclasses
+         * jakarta.servlet.ServletException and it subclasses
          */
         SERVLET,
         /**

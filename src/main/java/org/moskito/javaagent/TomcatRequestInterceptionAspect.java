@@ -35,20 +35,20 @@ public abstract class TomcatRequestInterceptionAspect {
     abstract void configurationInjectionMethods();
 
     /**
-     * Loads javax.servlet.ServletException class
+     * Loads jakarta.servlet.ServletException class
      * using given exception class loader to check
      * is given exception is instance of servlet exception.
      *
      * @param exception exception to check
-     * @return true - given exception is instance of javax.servlet.ServletException
+     * @return true - given exception is instance of jakarta.servlet.ServletException
      */
     private static boolean isServletException(Exception exception) {
 
         try {
-            // javax.servlet.ServletException class should be available
+            // jakarta.servlet.ServletException class should be available
             // by using class loader of tomcat app instantiated exceptions
             Class<?> servletExceptionClass = exception.getClass().getClassLoader()
-                    .loadClass("javax.servlet.ServletException");
+                    .loadClass("jakarta.servlet.ServletException");
             return servletExceptionClass.isInstance(exception);
         } catch (ClassNotFoundException e) {
             log.warn("Failed to find servlet exception class using given exception class loader.", e);
@@ -68,7 +68,7 @@ public abstract class TomcatRequestInterceptionAspect {
     public Object editTomcatConfiguration(ProceedingJoinPoint joinPoint) throws Throwable {
 
         // Should be instance of org.apache.catalina.connector.Request
-        // that implements javax.servlet.http.HttpServletRequest
+        // that implements jakarta.servlet.http.HttpServletRequest
         Object httpRequest =  joinPoint.getArgs()[0];
         long startTime = System.nanoTime();
         HttpRequestWrapper requestWrapper;

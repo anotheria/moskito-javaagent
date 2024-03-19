@@ -8,7 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * Wrapper implementation that takes instance of {@link javax.servlet.http.HttpSession}
+ * Wrapper implementation that takes instance of {@link jakarta.servlet.http.HttpSession}
  * as constructor argument and provides interface methods implementations using reflection.
  */
 public class StandardHttpSessionWrapper implements HttpSessionWrapper {
@@ -16,25 +16,25 @@ public class StandardHttpSessionWrapper implements HttpSessionWrapper {
     private static final Logger log = LoggerFactory.getLogger(StandardHttpSessionWrapper.class);
 
     /**
-     * Instance of {@link javax.servlet.http.HttpSession} to wrap
+     * Instance of {@link jakarta.servlet.http.HttpSession} to wrap
      */
     private Object session;
 
     /**
-     * {@link javax.servlet.http.HttpSession#getAttribute(String)}
+     * {@link jakarta.servlet.http.HttpSession#getAttribute(String)}
      */
     private Method getAttributeMethod;
     /**
-     * {@link javax.servlet.http.HttpSession#setAttribute(String, Object)}
+     * {@link jakarta.servlet.http.HttpSession#setAttribute(String, Object)}
      */
     private Method setAttributeMethod;
     /**
-     * {@link javax.servlet.http.HttpSession#getId()}
+     * {@link jakarta.servlet.http.HttpSession#getId()}
      */
     private Method getIdMethod;
 
     /**
-     * Takes instance of {@link javax.servlet.http.HttpSession} as argument
+     * Takes instance of {@link jakarta.servlet.http.HttpSession} as argument
      *
      * @param session instance of http session
      * @throws NoSuchMethodException if given object is not instance of http session
