@@ -400,6 +400,8 @@
                                     <excludes>
                                         <!-- exclude aop - as it placed into META-INF-->
                                         <exclude>aop.xml</exclude>
+                                        <exclude>META-INF/aop.xml</exclude>
+
                                         <!-- exclude m-k static resources-->
                                         <exclude>moskito/**</exclude>
                                         <!-- exclude logback - as it wil be provided from configuration/-->
@@ -410,8 +412,8 @@
                                         <exclude>**/*.json</exclude>
 
                                         <!-- exclude signatures  -->
-                                        <exclude>META-INF/BCKEY.SF</exclude>
-                                        <exclude>META-INF/BCKEY.DSA</exclude>
+                                    <!--<exclude>META-INF/BCKEY.SF</exclude>-->
+                                    <!--<exclude>META-INF/BCKEY.DSA</exclude>-->
                                         <exclude>META-INF/*.SF</exclude>
                                         <exclude>META-INF/*.DSA</exclude>
                                         <exclude>META-INF/*.RSA</exclude>
